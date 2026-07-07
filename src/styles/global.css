@@ -58,6 +58,11 @@
     box-sizing: border-box;
   }
 
+  ::selection {
+    background: color-mix(in srgb, var(--blue) 55%, transparent);
+    color: var(--ink);
+  }
+
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
