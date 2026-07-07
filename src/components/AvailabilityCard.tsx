@@ -1,7 +1,7 @@
 export default function AvailabilityCard() {
   return (
     <a
-      href="/disponibilités"
+      href="/disponibilites"
       className="mx-auto mt-16 block max-w-[720px] cursor-pointer rounded-[26px] p-0.5 text-left no-underline transition-transform duration-300 ease-out hover:-translate-y-1"
       style={{
         color: "inherit",
