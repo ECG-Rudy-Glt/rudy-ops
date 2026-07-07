@@ -1,5 +1,14 @@
 # TODO — rudy-ops.fr
 
+## Corrections déjà faites (07/07)
+
+- [x] Lien cassé "Créneaux ouverts en soirée et week-end" (`/disponibilités` avec accent → `/disponibilites`)
+- [x] Contours de champs/tags invisibles en mode clair (`--card-border` corrigée dans `global.css`)
+- [x] Surlignage de sélection de texte harmonisé au bleu du thème (`::selection`)
+- [x] Sujet de la demande : liste déroulante (services + "Autre") au lieu de cases à cocher
+- [x] Retrait de la pastille "Disponible en soirée et week-end" du Hero (redondante avec l'AvailabilityCard)
+- [x] Liens vers l'ancien domaine portfolio (`portfolio.rudy-ops.fr`) corrigés vers `portfolio.gault-rudy.com`
+
 ## État actuel du formulaire de contact
 
 - `ContactForm.tsx` poste vers Formspree (`FORM_ENDPOINT` = placeholder `REPLACE_WITH_YOUR_FORM_ID`,
@@ -52,6 +61,23 @@ l'intégration IA/automatisation dans les workflows.
 - [ ] **6. Documenter dans HOMELAB** — si le backend est hébergé sur l'infra existante, ajouter une
   entrée dans `Documentation/DID.md`/`TODO.md` du repo HOMELAB (nouveau service = nouvelle ligne dans
   l'inventaire), pas seulement dans ce TODO.md local
+
+## Calendrier — prise de rendez-vous (Cal.com auto-hébergé)
+
+- Décidé le 07/07 : **Cal.com auto-hébergé**, pas de service tiers (Calendly/Cal.com cloud)
+- La page `/disponibilites` a déjà l'emplacement prévu (placeholder "Emplacement du widget de prise
+  de rendez-vous (Cal.com auto-hébergé)") — reste à déployer le service et brancher le vrai widget
+- **Déploiement infra tracké dans HOMELAB**, pas ici : voir `Documentation/TODO.md` étape 31 du repo
+  HOMELAB (LXC 111, 10.0.20.56, exposition publique sans Cloudflare Access — la réservation doit être
+  possible sans compte)
+- [ ] Une fois le service Cal.com en ligne : remplacer le placeholder dans
+  `src/pages/disponibilites.astro` (la div avec la bordure en pointillés) par le vrai embed/lien
+  Cal.com
+- [ ] Décider du mode d'intégration : iframe embed officiel Cal.com vs simple lien vers
+  `cal.rudy-ops.fr/<slug>` qui ouvre dans un nouvel onglet — l'embed donne une meilleure UX (reste
+  sur le site) mais demande le script `embed.js` de Cal.com
+- [ ] Vérifier la sync calendrier réel (Google Calendar ou CalDAV, à trancher côté HOMELAB étape 31)
+  avant de considérer la fonctionnalité complète
 
 ## Non-objectifs (pour l'instant)
 
