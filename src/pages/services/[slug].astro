@@ -1,0 +1,63 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHero from "../../components/PageHero";
+import GlassPanel from "../../components/GlassPanel";
+import Breadcrumb from "../../components/Breadcrumb";
+import { services } from "../../data/services";
+
+export function getStaticPaths() {
+  return services.map((service) => ({
+    params: { slug: service.slug },
+    props: { service },
+  }));
+}
+
+const { service } = Astro.props;
+---
+
+<Layout
+  title={`${service.title} | rudy-ops.fr`}
+  description={service.description}
+>
+  <main class="wrap">
+    <Breadcrumb items={[{ label: "Services", href: "/#services" }, { label: service.title }]} />
+    <PageHero tag="Services" title={service.title} description={service.description} />
+
+    <div class="mt-14">
+      <GlassPanel>
+        <div class="flex items-start gap-4">
+          <span
+            class="flex h-14 w-14 flex-none items-center justify-center rounded-2xl border"
+            style={{ background: "color-mix(in srgb, var(--blue) 18%, transparent)", borderColor: "color-mix(in srgb, var(--blue) 38%, transparent)", color: "var(--blue-deep)" }}
+          >
+            <service.Icon />
+          </span>
+          <div>
+            <p class="leading-relaxed" style={{ color: "var(--ink-muted)" }}>{service.longDescription}</p>
+            <div class="tags mt-5">
+              {service.tags.map((tag: string) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <ul class="mt-8 grid grid-cols-1 gap-3 border-t pt-8 sm:grid-cols-2" style={{ borderColor: "var(--card-border)" }}>
+          {service.bullets.map((bullet: string) => (
+            <li class="flex items-start gap-2.5 text-[0.95rem]" style={{ color: "var(--ink)" }}>
+              <svg class="icon mt-0.5 h-4 w-4 flex-none" viewBox="0 0 24 24" style={{ color: "var(--blue-deep)" }}>
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              {bullet}
+            </li>
+          ))}
+        </ul>
+
+        <div class="mt-8 flex flex-wrap gap-3.5 border-t pt-8" style={{ borderColor: "var(--card-border)" }}>
+          <a href="/contact" class="btn-primary">Demander un devis</a>
+          <a href="/#services" class="btn-ghost">Voir les autres services</a>
+        </div>
+      </GlassPanel>
+    </div>
+  </main>
+</Layout>

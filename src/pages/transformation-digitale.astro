@@ -1,0 +1,70 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero";
+import GlassPanel from "../components/GlassPanel";
+import Breadcrumb from "../components/Breadcrumb";
+import { IconAudit, IconMigration, IconTraining } from "../components/icons";
+
+const steps = [
+  {
+    id: "audit",
+    Icon: IconAudit,
+    title: "Audit et cadrage",
+    description:
+      "Diagnostic complet de votre existant : infrastructure, processus, outils, risques. Cette phase se conclut par une feuille de route réaliste, priorisée et chiffrée, sans engagement de votre part.",
+  },
+  {
+    id: "migration",
+    Icon: IconMigration,
+    title: "Migration progressive",
+    description:
+      "Passage vers le cloud, l'on-premise ou un modèle hybride, par étapes maîtrisées, sans interruption de service. Chaque étape est validée avant de passer à la suivante.",
+  },
+  {
+    id: "formation",
+    Icon: IconTraining,
+    title: "Montee en autonomie",
+    description:
+      "Documentation complète, transfert de compétences aupres de vos équipes, bonnes pratiques. L'objectif est que vous puissiez reprendre la main sereinement, sans dépendance à long terme.",
+  },
+];
+---
+
+<Layout
+  title="Transformation digitale | rudy-ops.fr"
+  description="Accompagnement à la transformation digitale : audit, migration progressive et montée en autonomie de vos équipes."
+>
+  <main class="wrap">
+    <Breadcrumb items={[{ label: "Transformation digitale" }]} />
+    <PageHero
+      tag="Accompagnement"
+      title="Transformation digitale"
+      description="Au-delà de l'exécution technique, un accompagnement pour structurer votre transition : audit de l'existant, feuille de route, montée en autonomie de vos équipes."
+    />
+
+    <div class="mt-14 flex flex-col gap-6">
+      {steps.map((step) => (
+        <div id={step.id}>
+          <GlassPanel>
+            <div class="flex items-start gap-5">
+              <span
+                class="flex h-14 w-14 flex-none items-center justify-center rounded-2xl border"
+                style={{ background: "color-mix(in srgb, var(--blue) 18%, transparent)", borderColor: "color-mix(in srgb, var(--blue) 38%, transparent)", color: "var(--blue-deep)" }}
+              >
+                <step.Icon />
+              </span>
+              <div>
+                <h3 class="mb-2 text-xl">{step.title}</h3>
+                <p class="leading-relaxed" style={{ color: "var(--ink-muted)" }}>{step.description}</p>
+              </div>
+            </div>
+          </GlassPanel>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-10 flex justify-center">
+      <a href="/contact" class="btn-primary">Discuter de votre projet</a>
+    </div>
+  </main>
+</Layout>

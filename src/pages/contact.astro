@@ -1,0 +1,27 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero";
+import GlassPanel from "../components/GlassPanel";
+import Breadcrumb from "../components/Breadcrumb";
+import ContactForm from "../components/ContactForm";
+---
+
+<Layout
+  title="Contact | rudy-ops.fr"
+  description="Demandez un devis ou parlez de votre projet DevOps, infrastructure ou développement web."
+>
+  <main class="wrap">
+    <Breadcrumb items={[{ label: "Contact" }]} />
+    <PageHero
+      tag="Contact"
+      title="Demander un devis"
+      description="Décrivez votre besoin, je reviens vers vous rapidement pour convenir d'un premier échange, en soirée ou le week-end."
+    />
+
+    <div class="mx-auto mt-14 max-w-[720px]">
+      <GlassPanel>
+        <ContactForm client:load />
+      </GlassPanel>
+    </div>
+  </main>
+</Layout>

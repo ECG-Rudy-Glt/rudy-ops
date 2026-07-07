@@ -1,0 +1,41 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero";
+import GlassPanel from "../components/GlassPanel";
+import Breadcrumb from "../components/Breadcrumb";
+---
+
+<Layout
+  title="À propos | rudy-ops.fr"
+  description="Rudy Gault, freelance DevOps et Platform Engineer à Tours, en alternance chez Cloud Temple."
+>
+  <main class="wrap">
+    <Breadcrumb items={[{ label: "À propos" }]} />
+    <PageHero
+      tag="À propos"
+      title="Rudy Gault"
+      description="Alternant en infrastructure et développement, freelance DevOps et Platform Engineer à Tours."
+    />
+
+    <div class="mt-14">
+      <GlassPanel>
+        <p class="leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+          Actuellement en 4e année à SUPINFO (fin de cursus prévue en septembre 2027), je suis en alternance chez
+          Cloud Temple depuis 3 ans sur des missions d'automatisation d'infrastructure, de supervision réseau a
+          grande échelle et d'AIOps. En parallèle, je conçois et j'exploite mon propre homelab en production, une
+          infrastructure self-hosted complète pilotée en Infrastructure as Code.
+        </p>
+        <p class="mt-4 leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+          Ce site présente mon activité de freelance, ouverte en soirée et le week-end. Pour voir le détail de mes
+          projets techniques (école, personnels et en entreprise), direction mon
+          <a href="https://portfolio.rudy-ops.fr" class="underline">portfolio</a>.
+        </p>
+
+        <div class="mt-8 flex flex-wrap gap-3.5 border-t pt-8" style={{ borderColor: "var(--card-border)" }}>
+          <a href="/contact" class="btn-primary">Me contacter</a>
+          <a href="https://portfolio.rudy-ops.fr" class="btn-ghost">Voir le portfolio</a>
+        </div>
+      </GlassPanel>
+    </div>
+  </main>
+</Layout>

@@ -1,0 +1,102 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero";
+import GlassPanel from "../components/GlassPanel";
+import Breadcrumb from "../components/Breadcrumb";
+import { IconServer, IconShield } from "../components/icons";
+---
+
+<Layout
+  title="Disponibilités | rudy-ops.fr"
+  description="Pourquoi mes créneaux sont limites au soir et au week-end, et comment réserver un appel de découverte gratuit."
+>
+  <main class="wrap">
+    <Breadcrumb items={[{ label: "Disponibilités" }]} />
+    <PageHero
+      tag="Disponibilités"
+      title="Pourquoi seulement le soir et le week-end"
+      description="Transparence totale sur mes créneaux, leur origine, et comment réserver un appel de découverte gratuit sans engagement."
+    />
+
+    <div class="mt-14">
+      <GlassPanel>
+        <div class="grid grid-cols-1 gap-9 sm:grid-cols-2">
+          <div>
+            <h3 class="mb-2.5 flex items-center gap-2.5 text-xl">
+              <span
+                class="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[11px] border"
+                style={{ background: "color-mix(in srgb, var(--blue) 18%, transparent)", borderColor: "color-mix(in srgb, var(--blue) 38%, transparent)", color: "var(--blue-deep)" }}
+              >
+                <IconServer />
+              </span>
+              Actuellement en alternance
+            </h3>
+            <p class="leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+              Je suis en 4e année à SUPINFO, en alternance chez Cloud Temple sur des missions d'infrastructure et
+              d'automatisation. Cette activité occupe la majorité de mes semaines en journée, jusqu'à la fin de mon
+              cursus prévue en septembre 2027.
+            </p>
+          </div>
+          <div>
+            <h3 class="mb-2.5 flex items-center gap-2.5 text-xl">
+              <span
+                class="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[11px] border"
+                style={{ background: "color-mix(in srgb, var(--blue) 18%, transparent)", borderColor: "color-mix(in srgb, var(--blue) 38%, transparent)", color: "var(--blue-deep)" }}
+              >
+                <IconShield />
+              </span>
+              Une obligation légale
+            </h3>
+            <p class="leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+              Mon contrat d'alternance m'impose de réserver mon temps de travail salarié à mon employeur pendant les
+              horaires de bureau. Le freelance ne peut donc s'exercer que sur mon temps personnel : soirées et
+              week-ends.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-6 border-t pt-6" style={{ borderColor: "var(--card-border)" }}>
+          <div class="flex justify-between border-b py-2.5 text-[0.95rem]" style={{ borderColor: "var(--card-border)" }}>
+            <span style={{ color: "var(--ink-muted)" }}>Lundi - Vendredi</span>
+            <span class="font-semibold">18h00 - 23h00</span>
+          </div>
+          <div class="flex justify-between border-b py-2.5 text-[0.95rem]" style={{ borderColor: "var(--card-border)" }}>
+            <span style={{ color: "var(--ink-muted)" }}>Samedi - Dimanche</span>
+            <span class="font-semibold">Sur créneaux réservés</span>
+          </div>
+          <div class="flex justify-between py-2.5 text-[0.95rem]">
+            <span style={{ color: "var(--ink-muted)" }}>Besoin d'un délai différent ?</span>
+            <span class="font-semibold">Devis sur mesure possible</span>
+          </div>
+        </div>
+      </GlassPanel>
+    </div>
+
+    <div class="mt-8">
+      <GlassPanel>
+        <div class="mb-5 flex items-center gap-3">
+          <span
+            class="flex h-10 w-10 flex-none items-center justify-center rounded-xl border"
+            style={{ background: "color-mix(in srgb, var(--blue) 18%, transparent)", borderColor: "color-mix(in srgb, var(--blue) 38%, transparent)", color: "var(--blue-deep)" }}
+          >
+            <svg class="icon h-[19px] w-[19px]" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          </span>
+          <div>
+            <h3 class="m-0">Reserver un appel gratuit</h3>
+            <p class="mt-1 text-[0.92rem]" style={{ color: "var(--ink-muted)" }}>15 minutes pour parler de votre besoin, sans engagement</p>
+          </div>
+        </div>
+        <div
+          class="flex min-h-[380px] flex-col items-center justify-center gap-3.5 rounded-[20px] border border-dashed p-10 text-center"
+          style={{ background: "var(--card-strong)", borderColor: "var(--card-border)" }}
+        >
+          <svg class="icon h-8 w-8" viewBox="0 0 24 24" style={{ color: "var(--ink-muted)" }}><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          <p class="max-w-[40ch] text-[0.92rem]" style={{ color: "var(--ink-muted)" }}>
+            Emplacement du widget de prise de rendez-vous (Cal.com auto-heberge)
+          </p>
+          <a href="#" class="btn-primary">Voir les créneaux disponibles</a>
+        </div>
+      </GlassPanel>
+    </div>
+  </main>
+</Layout>
