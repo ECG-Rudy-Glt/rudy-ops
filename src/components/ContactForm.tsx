@@ -52,7 +52,7 @@ export default function ContactForm() {
           required
           defaultValue=""
           className="w-full rounded-full border px-4 py-3 outline-none"
-          style={{ background: "var(--card)", borderColor: "var(--field-border)", color: "var(--ink)" }}
+          style={{ background: "var(--card)", borderColor: "var(--card-border)", color: "var(--ink)" }}
         >
           <option value="" disabled>Choisissez un sujet</option>
           {services.map((service) => (
@@ -69,7 +69,7 @@ export default function ContactForm() {
           required
           rows={6}
           className="w-full resize-none rounded-2xl border px-4 py-3 outline-none"
-          style={{ background: "var(--card)", borderColor: "var(--field-border)", color: "var(--ink)" }}
+          style={{ background: "var(--card)", borderColor: "var(--card-border)", color: "var(--ink)" }}
           placeholder="Décrivez votre projet, votre infrastructure actuelle, vos délais..."
         />
       </div>
@@ -97,7 +97,7 @@ function Field({ label, name, type, required }: { label: string; name: string; t
         type={type}
         required={required}
         className="w-full rounded-full border px-4 py-3 outline-none"
-        style={{ background: "var(--card)", borderColor: "var(--field-border)", color: "var(--ink)" }}
+        style={{ background: "var(--card)", borderColor: "var(--card-border)", color: "var(--ink)" }}
       />
     </div>
   );

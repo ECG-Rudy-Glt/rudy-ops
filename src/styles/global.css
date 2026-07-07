@@ -5,8 +5,7 @@
   --bg: #fbfaf7;
   --card: rgba(255, 255, 255, 0.5);
   --card-strong: rgba(255, 255, 255, 0.74);
-  --card-border: rgba(255, 255, 255, 0.95);
-  --field-border: rgba(28, 26, 23, 0.16);
+  --card-border: rgba(28, 26, 23, 0.16);
   --rim: rgba(255, 255, 255, 0.95);
   --ink: #1c1a17;
   --ink-muted: #8a8478;
@@ -23,7 +22,6 @@
   --card: rgba(255, 248, 236, 0.045);
   --card-strong: rgba(255, 248, 236, 0.075);
   --card-border: rgba(255, 248, 236, 0.09);
-  --field-border: var(--card-border);
   --rim: rgba(255, 248, 236, 0.1);
   --ink: #ece3d3;
   --ink-muted: #97896f;
@@ -41,7 +39,6 @@
     --card: rgba(255, 248, 236, 0.045);
     --card-strong: rgba(255, 248, 236, 0.075);
     --card-border: rgba(255, 248, 236, 0.09);
-    --field-border: var(--card-border);
     --rim: rgba(255, 248, 236, 0.1);
     --ink: #ece3d3;
     --ink-muted: #97896f;
