@@ -4,8 +4,8 @@
 
 - `ContactForm.tsx` poste vers Formspree (`FORM_ENDPOINT` = placeholder `REPLACE_WITH_YOUR_FORM_ID`,
   **pas encore configuré** — le formulaire ne fonctionne pas tel quel)
-- Champs actuels : Nom, Email, Entreprise (optionnel), Sujet de la demande (cases à cocher, liste des
-  services), Message
+- Champs actuels : Nom, Email, Entreprise (optionnel), Sujet de la demande (liste déroulante, un
+  sujet parmi les services + "Autre"), Message
 - Aucune réponse automatique à l'envoi — le client voit juste "Message envoyé", sans email de
   confirmation
 
