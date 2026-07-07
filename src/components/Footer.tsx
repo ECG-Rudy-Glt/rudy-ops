@@ -1,7 +1,7 @@
 const links = [
   { href: "/#services", label: "Services" },
   { href: "/disponibilites", label: "Disponibilités" },
-  { href: "https://portfolio.rudy-ops.fr", label: "Portfolio" },
+  { href: "https://portfolio.gault-rudy.com", label: "Portfolio" },
   { href: "/contact", label: "Contact" },
 ];
 

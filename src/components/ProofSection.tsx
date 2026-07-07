@@ -3,7 +3,7 @@ export default function ProofSection() {
     <section className="section text-center" id="propos">
       <div className="section-tag">Preuves</div>
       <a
-        href="https://portfolio.rudy-ops.fr"
+        href="https://portfolio.gault-rudy.com"
         className="group mx-auto mt-5 block max-w-[720px] text-center no-underline"
       >
         <h2 className="inline text-[clamp(1.9rem,6vw,3.4rem)] leading-tight transition-opacity group-hover:opacity-75">

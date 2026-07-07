@@ -6,7 +6,7 @@ const links = [
   { href: "/#services", label: "Services" },
   { href: "/disponibilites", label: "Disponibilités" },
   { href: "/a-propos", label: "À propos" },
-  { href: "https://portfolio.rudy-ops.fr", label: "Portfolio" },
+  { href: "https://portfolio.gault-rudy.com", label: "Portfolio" },
 ];
 
 export default function Nav() {
