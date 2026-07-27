@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { services } from "../data/services";
 
-const FORM_ENDPOINT = "https://formspree.io/f/REPLACE_WITH_YOUR_FORM_ID";
+const FORM_ENDPOINT = "https://api.rudy-ops.fr/contact";
 
 export default function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -10,11 +10,12 @@ export default function ContactForm() {
     event.preventDefault();
     setStatus("sending");
     const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries());
     try {
       const response = await fetch(FORM_ENDPOINT, {
         method: "POST",
-        body: new FormData(form),
-        headers: { Accept: "application/json" },
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
       });
       if (response.ok) {
         setStatus("sent");
@@ -38,6 +39,17 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
+      {/* Honeypot anti-spam : invisible et hors tabulation pour un humain, un bot générique
+          le remplit presque toujours. Ne pas nommer "honeypot"/"trap", un bot un peu filtre
+          l'évite ; "website" ressemble à un vrai champ qu'un humain n'a aucune raison de voir. */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+      />
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Nom" name="name" type="text" required />
         <Field label="Email" name="email" type="email" required />
