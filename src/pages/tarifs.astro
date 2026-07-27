@@ -1,0 +1,241 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero";
+import GlassPanel from "../components/GlassPanel";
+import Breadcrumb from "../components/Breadcrumb";
+
+const TJM = 400;
+
+const pricing = [
+  { title: "Sites statiques", days: "2-4 jours", price: "800-1600 €" },
+  { title: "Sites dynamiques", days: "5-15 jours", price: "2000-6000 €" },
+  { title: "Infrastructure on-premise", days: "3-8 jours", price: "1200-3200 €" },
+  { title: "DevOps & Infrastructure as Code", days: "3-10 jours", price: "1200-4000 €" },
+  { title: "Sécurité (audit, hardening)", days: "2-5 jours", price: "800-2000 €" },
+  { title: "IA et LLM dans vos workflows", days: "3-8 jours", price: "1200-3200 €" },
+];
+
+type ScopeItem = { title: string; included: string[]; excluded: string[] };
+
+const scope: ScopeItem[] = [
+  {
+    title: "DevOps & Infrastructure as Code",
+    included: [
+      "Terraform : Proxmox/on-premise, mais aussi AWS/GCP/Azure si le besoin le demande",
+      "Ansible : rédaction de playbooks/rôles depuis zéro",
+      "CI/CD : Forgejo Actions, GitLab CI, GitHub Actions",
+      "Reprise d'un code existant d'un tiers : évaluée selon l'état de la dette technique",
+    ],
+    excluded: [
+      "Kubernetes en production : bases seulement à ce jour, à consolider — abordé avec prudence",
+      "Jenkins, Azure DevOps Pipelines : jamais pratiqués",
+    ],
+  },
+  {
+    title: "Infrastructure on-premise",
+    included: [
+      "Proxmox et VMware/ESXi",
+      "Segmentation réseau (VLAN, firewall, PKI interne) en configuration logicielle",
+    ],
+    excluded: [
+      "Hyper-V",
+      "Intervention physique chez le client (câblage, matériel) — travail 100% à distance",
+    ],
+  },
+  {
+    title: "Sites statiques",
+    included: [
+      "Astro, hébergement cloud ou on-premise",
+      "Maquettage avec Claude/Figma, ajustable ensemble (design non poussé)",
+      "Multilingue FR/EN",
+    ],
+    excluded: ["Design UI graphique poussé from scratch", "Plus de 2 langues"],
+  },
+  {
+    title: "Sites dynamiques",
+    included: [
+      "Authentification classique (email/mot de passe, OAuth)",
+      "Bases SQL et NoSQL (Postgres, MySQL, MongoDB)",
+      "Applications cross-platform (type Ionic)",
+    ],
+    excluded: [
+      "SSO entreprise (SAML, Active Directory) : pas encore fait, évalué au cas par cas",
+      "Applications mobiles natives spécialisées (iOS/Android)",
+      "Langages compilés (Java, C, C++...)",
+    ],
+  },
+  {
+    title: "Open source friendly",
+    included: ["Choix d'outils open source auditables, évite le vendor lock-in"],
+    excluded: [
+      "Migration d'un stack propriétaire lourd existant (type Salesforce/SAP) : au cas par cas selon l'ampleur",
+    ],
+  },
+  {
+    title: "IA et LLM dans vos workflows",
+    included: [
+      "Intégration d'API (Claude, OpenAI) et systèmes RAG",
+      "Exemple concret : l'assistant de devis IA de ce site (chat + création automatique de tâche Vikunja)",
+    ],
+    excluded: [
+      "Fine-tuning / entraînement de modèles depuis zéro",
+      "Hébergement de LLM open source en local (Ollama, vLLM) : pas encore proposé",
+    ],
+  },
+  {
+    title: "Sécurité",
+    included: [
+      "Audits et tests d'intrusion informels (comme celui réalisé sur l'instance Jellyfin du homelab)",
+      "Hardening système/réseau, gestion centralisée des secrets",
+    ],
+    excluded: [
+      "Audits certifiants formels (type PASSI) avec rapport engageant juridiquement",
+      "Conformité ISO 27001 / SOC 2 / HDS : pas l'infrastructure pour",
+      "Astreinte 24/7 en temps réel — résolution dès que possible, sans garantie de délai contractuel",
+    ],
+  },
+  {
+    title: "Transformation digitale (audit, migration, formation)",
+    included: ["Audit et cadrage", "Migration progressive", "Documentation et transfert de compétences"],
+    excluded: [
+      "Garantie contractuelle de migration zéro downtime sur un système critique — approche prudente, pas de promesse ferme",
+      "Formation formelle/certifiante en présentiel",
+    ],
+  },
+];
+---
+
+<Layout
+  title="Tarifs | rudy-ops.fr"
+  description="Taux journalier, fourchettes de prix indicatives par prestation et périmètre honnête de ce qui est inclus ou non."
+>
+  <main class="wrap">
+    <Breadcrumb items={[{ label: "Tarifs" }]} />
+    <PageHero
+      tag="Tarifs"
+      title="Un taux journalier, des fourchettes indicatives"
+      description="Un devis précis se fait toujours à partir de votre besoin réel — ce qui suit donne un ordre de grandeur, pas un prix figé."
+    />
+
+    <div class="mx-auto mt-14 flex max-w-[820px] flex-col gap-8">
+      <GlassPanel>
+        <p class="text-lg font-semibold" style={{ color: "var(--ink)" }}>
+          TJM : {TJM} €/jour
+        </p>
+        <p class="mt-3 leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+          Ce taux correspond à ce que facture un freelance junior sur le marché français en 2026, pour les domaines
+          couverts par ce site. Les fourchettes ci-dessous sont indicatives (TJM × durée estimée) — le devis final
+          dépend toujours du projet, discuté ensemble avant de s'engager.
+        </p>
+        <p class="mt-3 leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+          Je m'appuie sur l'IA (notamment Claude, d'Anthropic) dans mon propre processus de travail — pour accélérer
+          certaines tâches (maquettage, revue de code, documentation), pas pour remplacer la réflexion technique. Je
+          le dis ouvertement : c'est un outil parmi d'autres, pas un raccourci qui se substitue à la compétence.
+        </p>
+      </GlassPanel>
+
+      <GlassPanel>
+        <h2 class="mb-6 text-xl font-semibold" style={{ color: "var(--ink)" }}>
+          Fourchettes indicatives par prestation
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr style={{ color: "var(--ink-muted)" }}>
+                <th class="pb-3 pr-4 font-semibold">Prestation</th>
+                <th class="pb-3 pr-4 font-semibold">Durée typique</th>
+                <th class="pb-3 font-semibold">Prix indicatif</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                pricing.map((row) => (
+                  <tr class="border-t" style={{ borderColor: "var(--card-border)" }}>
+                    <td class="py-3 pr-4" style={{ color: "var(--ink)" }}>
+                      {row.title}
+                    </td>
+                    <td class="py-3 pr-4" style={{ color: "var(--ink-muted)" }}>
+                      {row.days}
+                    </td>
+                    <td class="py-3 font-semibold" style={{ color: "var(--ink)" }}>
+                      {row.price}
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-4 text-sm" style={{ color: "var(--ink-muted)" }}>
+          Le service "Open source friendly" n'a pas de ligne dédiée : c'est un principe transverse appliqué sur les
+          autres prestations, sans surcoût.
+        </p>
+      </GlassPanel>
+
+      <GlassPanel>
+        <h2 class="mb-2 text-xl font-semibold" style={{ color: "var(--ink)" }}>
+          Périmètre par prestation
+        </h2>
+        <p class="mb-6 text-sm" style={{ color: "var(--ink-muted)" }}>
+          Ce qui est fait aujourd'hui, et ce qui ne l'est pas encore — en toute transparence.
+        </p>
+        <div class="flex flex-col gap-3">
+          {
+            scope.map((s) => (
+              <details
+                class="rounded-2xl border px-5 py-4"
+                style={{ background: "var(--card)", borderColor: "var(--card-border)" }}
+              >
+                <summary class="cursor-pointer font-semibold" style={{ color: "var(--ink)" }}>
+                  {s.title}
+                </summary>
+                <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div>
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--ink)" }}>
+                      Inclus
+                    </p>
+                    <ul class="flex flex-col gap-1.5 text-sm" style={{ color: "var(--ink-muted)" }}>
+                      {s.included.map((item) => (
+                        <li>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--terracotta, var(--ink))" }}>
+                      Hors périmètre / pas encore
+                    </p>
+                    <ul class="flex flex-col gap-1.5 text-sm" style={{ color: "var(--ink-muted)" }}>
+                      {s.excluded.map((item) => (
+                        <li>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </GlassPanel>
+
+      <GlassPanel>
+        <h2 class="mb-4 text-xl font-semibold" style={{ color: "var(--ink)" }}>
+          Limites générales
+        </h2>
+        <ul class="flex flex-col gap-2 text-sm leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+          <li>
+            • Pas de langages compilés (Java, C, C++...) — stack de prédilection : Python, JavaScript/TypeScript,
+            scripts d'infrastructure (Bash, Ansible, Terraform)
+          </li>
+          <li>• Pas d'intervention physique sur site (câblage, matériel) — travail à distance</li>
+          <li>• Pas d'astreinte 24/7 — résolution des problèmes dès que possible, sans garantie de délai contractuel</li>
+          <li>• Pas d'audit ou de certification engageant juridiquement (ISO 27001, SOC 2, HDS, PASSI)</li>
+        </ul>
+
+        <div class="mt-8 flex flex-wrap gap-3.5 border-t pt-8" style={{ borderColor: "var(--card-border)" }}>
+          <a href="/contact" class="btn-primary">Demander un devis</a>
+          <a href="/a-propos" class="btn-ghost">En savoir plus sur moi</a>
+        </div>
+      </GlassPanel>
+    </div>
+  </main>
+</Layout>

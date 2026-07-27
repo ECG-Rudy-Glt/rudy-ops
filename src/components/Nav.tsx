@@ -4,6 +4,7 @@ import ThemeToggle from "./ThemeToggle";
 const links = [
   { href: "/", label: "Accueil" },
   { href: "/#services", label: "Services" },
+  { href: "/tarifs", label: "Tarifs" },
   { href: "/disponibilites", label: "Disponibilités" },
   { href: "/a-propos", label: "À propos" },
   { href: "https://portfolio.gault-rudy.com", label: "Portfolio" },
