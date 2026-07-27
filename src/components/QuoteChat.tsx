@@ -2,6 +2,45 @@ import { useState, useRef, useEffect, type FormEvent } from "react";
 import { services } from "../data/services";
 
 const CHAT_ENDPOINT = "https://api.rudy-ops.fr/quote-chat";
+// Repère côté client uniquement, pour couper la conversation après un certain
+// nombre d'échanges — le backend est sans état (l'historique vit côté Google
+// via previous_interaction_id), donc c'est ici que la limite de bon sens vit.
+const MAX_TURNS = 12;
+
+// Suggestions de premier message par service, pour éviter d'avoir à taper une
+// phrase complète pour démarrer — cliquer une bulle envoie directement le texte.
+const STARTER_PROMPTS: Record<string, string[]> = {
+  "devops-iac": [
+    "Je veux mettre en place un pipeline CI/CD",
+    "Je veux automatiser mon infrastructure avec Terraform/Ansible",
+    "Je veux ajouter de la supervision et des alertes",
+  ],
+  "infra-on-premise": [
+    "Je veux héberger mon infra moi-même plutôt que sur le cloud",
+    "Je veux segmenter et sécuriser mon réseau",
+    "Je veux une stratégie de sauvegarde fiable",
+  ],
+  "site-statique": [
+    "Je veux un site vitrine simple et rapide",
+    "Je veux migrer mon site vers de l'hébergement on-premise",
+  ],
+  "site-dynamique": [
+    "Je veux un back-office avec authentification",
+    "Je veux intégrer un outil tiers (paiement, CRM...)",
+  ],
+  "open-source": [
+    "Je veux remplacer un outil propriétaire par de l'open source",
+    "Je veux éviter le vendor lock-in sur mon infra",
+  ],
+  "ia-llm": [
+    "Je veux intégrer l'IA dans mes workflows (support, doc, code)",
+    "Je veux un système RAG sur ma documentation interne",
+  ],
+  securite: [
+    "Je veux un audit de sécurité de mon infrastructure",
+    "Je veux durcir la sécurité de mes systèmes",
+  ],
+};
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -9,7 +48,11 @@ export default function QuoteChat() {
   const [service, setService] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error" | "maxed">("idle");
+  // Identifiant opaque renvoyé par le backend (previous_interaction_id côté Gemini) —
+  // on ne renvoie que ça + le dernier message, jamais tout l'historique.
+  const interactionIdRef = useRef<string | null>(null);
+  const turnCountRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,6 +62,8 @@ export default function QuoteChat() {
   const startChat = (slug: string) => {
     const chosen = services.find((s) => s.slug === slug);
     setService(slug);
+    interactionIdRef.current = null;
+    turnCountRef.current = 0;
     setMessages([
       {
         role: "assistant",
@@ -27,13 +72,17 @@ export default function QuoteChat() {
     ]);
   };
 
-  const send = async (event: FormEvent) => {
-    event.preventDefault();
-    const text = input.trim();
-    if (!text || status === "sending" || status === "done") return;
+  const submitMessage = async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || status === "sending" || status === "done") return;
 
-    const nextMessages: ChatMessage[] = [...messages, { role: "user", content: text }];
-    setMessages(nextMessages);
+    if (turnCountRef.current >= MAX_TURNS) {
+      setStatus("maxed");
+      return;
+    }
+    turnCountRef.current += 1;
+
+    setMessages((prev) => [...prev, { role: "user", content: trimmed }]);
     setInput("");
     setStatus("sending");
 
@@ -41,17 +90,25 @@ export default function QuoteChat() {
       const response = await fetch(CHAT_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // On n'envoie que role/content à chaque appel : le backend est sans état,
-        // il reconstruit le contexte à partir de l'historique complet renvoyé ici.
-        body: JSON.stringify({ service, messages: nextMessages }),
+        body: JSON.stringify({
+          service,
+          message: trimmed,
+          previous_interaction_id: interactionIdRef.current,
+        }),
       });
       if (!response.ok) throw new Error("request failed");
       const data = await response.json();
+      interactionIdRef.current = data.interaction_id ?? null;
       setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
       setStatus(data.done ? "done" : "idle");
     } catch {
       setStatus("error");
     }
+  };
+
+  const send = (event: FormEvent) => {
+    event.preventDefault();
+    submitMessage(input);
   };
 
   if (!service) {
@@ -105,6 +162,22 @@ export default function QuoteChat() {
         )}
       </div>
 
+      {messages.length === 1 && status === "idle" && (STARTER_PROMPTS[service]?.length ?? 0) > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {STARTER_PROMPTS[service].map((prompt) => (
+            <button
+              key={prompt}
+              type="button"
+              onClick={() => submitMessage(prompt)}
+              className="rounded-full border px-3.5 py-2 text-xs transition hover:opacity-80"
+              style={{ background: "var(--card)", borderColor: "var(--card-border)", color: "var(--ink-muted)" }}
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      )}
+
       {status === "error" && (
         <p className="text-sm" style={{ color: "var(--terracotta)" }}>
           Une erreur est survenue. Vous pouvez aussi m'écrire directement à contact@rudy-ops.fr.
@@ -114,6 +187,12 @@ export default function QuoteChat() {
       {status === "done" ? (
         <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
           Demande envoyée — à bientôt !
+        </p>
+      ) : status === "maxed" ? (
+        <p className="text-sm" style={{ color: "var(--ink-muted)" }}>
+          La conversation devient longue — pour aller plus vite, écrivez-moi directement à{" "}
+          <a href="mailto:contact@rudy-ops.fr" className="underline">contact@rudy-ops.fr</a> ou utilisez le
+          formulaire ci-dessus.
         </p>
       ) : (
         <form onSubmit={send} className="flex gap-2">

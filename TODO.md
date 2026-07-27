@@ -58,15 +58,26 @@ Décidé : le chatbot vient **en plus** du formulaire statique (onglet "Assistan
 "Formulaire" sur `/contact`, cf. `ContactPanel.tsx`) — le formulaire reste l'option par défaut et ne
 disparaît pas si le chat a un souci.
 
-- [x] Endpoint `/quote-chat` (`backend/app.py`) — API Claude (**Sonnet 5**, `claude-sonnet-5` —
-  suffisant pour ce cas d'usage simple, pas besoin d'Opus), avec un outil `submit_quote_request` que
-  Claude appelle une fois nom/email/résumé réunis (jamais de texte libre parsé)
+- [x] Endpoint `/quote-chat` (`backend/app.py`) — **API Gemini (Google), tier gratuit** (changé depuis
+  Claude le 27/07 : pas de nouvelle facturation à ouvrir pour ce volume). Utilise l'API Interactions
+  (`client.interactions.create`, modèle `gemini-3.6-flash`), avec un outil `submit_quote_request` que
+  le modèle appelle une fois nom/email/résumé réunis (jamais de texte libre parsé). L'historique de
+  conversation vit côté Google (`previous_interaction_id`) — le backend Flask reste sans état, le
+  frontend ne renvoie que le dernier message + cet identifiant.
+- [x] Le prompt système laisse le modèle poser **autant de questions que nécessaire** pour bien
+  cadrer le projet (pas limité à 2-3) — l'objectif est un résumé exploitable pour un devis, pas une
+  conversation minimale. Mais adaptatif dans les deux sens : si le message initial est déjà bien
+  détaillé, pas de questions superflues (juste une confirmation) ; et si le visiteur ne veut pas
+  répondre à plus de questions ou veut envoyer tel quel, le modèle n'insiste pas et soumet avec ce
+  qu'il a (nom/email restent nécessaires, rien d'autre)
 - [x] Questions de qualification adaptées par service (`SERVICE_QUESTIONS`, à garder synchronisé avec
   `src/data/services.tsx` si un service est ajouté/renommé)
-- [x] Sécurité : les données extraites par Claude repassent par la **même validation** que le
+- [x] Bulles de suggestion de premier message par service (`STARTER_PROMPTS` dans `QuoteChat.tsx`) —
+  réduit la friction pour démarrer, un clic envoie le texte
+- [x] Sécurité : les données extraites par le modèle repassent par la **même validation** que le
   formulaire statique (longueur, format email, caractères de contrôle anti-injection SMTP) avant tout
   envoi d'email ou création de tâche Vikunja — testé (tentative d'injection d'en-tête via le nom,
-  email invalide, historique de conversation trop long)
+  email invalide, message trop long, identifiant de conversation malformé)
 - [x] Composant `QuoteChat.tsx` (choix du service puis conversation), testé en local (build Astro +
   tests backend avec l'appel Claude mocké)
 - [ ] **Reste à faire côté déploiement** (à faire par Rudy, pas depuis cet environnement) :

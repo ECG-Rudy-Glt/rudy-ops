@@ -13,13 +13,20 @@ au bot qu'il a été détecté.
 Expose aussi /quote-chat : un assistant IA (QuoteChat.tsx) optionnel en plus
 du formulaire statique, qui pose des questions de qualification adaptées au
 service choisi puis crée la même tâche Vikunja / les mêmes emails une fois
-assez d'informations réunies. Les données extraites par Claude repassent par
-la même validation que le formulaire (validate_contact_fields) avant tout
-envoi — le contenu généré par la conversation n'est jamais utilisé tel quel.
+assez d'informations réunies. Les données extraites par le modèle repassent
+par la même validation que le formulaire (validate_fields) avant tout envoi —
+le contenu généré par la conversation n'est jamais utilisé tel quel.
+
+Utilise l'API Gemini (Google), tier gratuit — pas de coût pour ce volume, pas
+de nouvelle facturation à ouvrir. L'API Interactions de Gemini est gérée côté
+serveur Google (previous_interaction_id), donc /quote-chat est sans état côté
+Flask : le frontend renvoie juste le dernier interaction_id, pas tout
+l'historique.
 
 Variables d'environnement requises en plus de celles du formulaire :
-  ANTHROPIC_API_KEY (secret OpenBao, comme les autres — passé via -e dans le
-  playbook Ansible, cf. pattern documenté dans deploy-vikunja.yml).
+  GEMINI_API_KEY (clé générée sur aistudio.google.com, tier gratuit — secret
+  destiné à OpenBao comme les autres, passé via -e dans le playbook Ansible,
+  cf. pattern documenté dans deploy-vikunja.yml).
 """
 import logging
 import os
@@ -27,9 +34,10 @@ import re
 import smtplib
 from email.message import EmailMessage
 
-import anthropic
 import requests
 from flask import Flask, jsonify, request
+from google import genai
+from google.genai import errors as genai_errors
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -47,8 +55,8 @@ VIKUNJA_API_URL = os.environ["VIKUNJA_API_URL"]  # ex: http://10.0.20.52:3456/ap
 VIKUNJA_API_TOKEN = os.environ["VIKUNJA_API_TOKEN"]
 VIKUNJA_PROJECT_ID = os.environ["VIKUNJA_PROJECT_ID"]
 
-ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
-anthropic_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+genai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "https://rudy-ops.fr")
 
@@ -144,8 +152,14 @@ def create_vikunja_task(data: dict) -> None:
 # pose 2-3 questions de qualification selon le service choisi, puis appelle le
 # même create_vikunja_task()/send_email() une fois assez d'informations
 # réunies — via l'outil submit_quote_request, jamais en texte libre.
+#
+# Gemini (tier gratuit) plutôt que Claude ici : ce chatbot ne justifie pas
+# d'ouvrir une facturation API séparée pour ce volume. L'API Interactions
+# gère l'historique de conversation côté Google (previous_interaction_id) —
+# le frontend ne renvoie que le dernier message + cet identifiant, pas tout
+# l'historique.
 
-QUOTE_MODEL = "claude-sonnet-5"
+QUOTE_MODEL = "gemini-3.6-flash"  # tier gratuit — largement suffisant pour ce volume
 
 # Doit rester synchronisé avec src/data/services.tsx (slug -> titre affiché).
 SERVICE_LABELS = {
@@ -202,16 +216,23 @@ DEFAULT_QUESTIONS = (
     "- Y a-t-il un délai ou un budget déjà en tête ?"
 )
 
+# Forme attendue par l'API Interactions de Gemini pour un tool de type
+# "function" : {"type": "function", "name", "description", "parameters"}
+# (vérifié empiriquement contre google-genai 2.14 — pas de "input_schema"
+# imbriqué comme chez Claude, "parameters" est directement au même niveau).
 QUOTE_TOOL = {
+    "type": "function",
     "name": "submit_quote_request",
     "description": (
         "Soumets la demande de devis une fois que tu as le nom, l'email, et un "
         "résumé structuré du besoin incluant les réponses aux questions de "
-        "qualification pertinentes. N'appelle cet outil qu'après avoir posé au "
-        "moins une question de qualification adaptée au service choisi — pas "
-        "immédiatement après le premier message."
+        "qualification pertinentes. N'appelle cet outil qu'après au moins un échange "
+        "avec le visiteur (une question de qualification, ou une confirmation si son "
+        "message initial était déjà bien détaillé) — jamais dès le tout premier message "
+        "sans aucune interaction, sauf si le visiteur demande explicitement d'envoyer "
+        "tel quel."
     ),
-    "input_schema": {
+    "parameters": {
         "type": "object",
         "properties": {
             "name": {"type": "string", "description": "Nom de la personne"},
@@ -229,8 +250,12 @@ QUOTE_TOOL = {
     },
 }
 
-MAX_CHAT_MESSAGES = 24  # ~12 échanges — au-delà, on invite à passer par le formulaire/email
 MAX_MESSAGE_LEN = 2000
+# previous_interaction_id est un identifiant opaque généré par Google, jamais
+# construit par le client — on ne fait que le relayer. Bornage défensif du
+# format malgré tout, plutôt que de faire confiance à un champ non typé venu
+# du frontend.
+INTERACTION_ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,200}$")
 
 
 def build_quote_system_prompt(service_label: str, questions: str) -> str:
@@ -238,44 +263,52 @@ def build_quote_system_prompt(service_label: str, questions: str) -> str:
         "Tu es l'assistant de qualification de devis pour rudy-ops.fr, le site "
         "vitrine freelance de Rudy (DevOps, infrastructure, développement web). "
         f"Le visiteur s'intéresse au service : {service_label}.\n\n"
-        "Ton rôle : avoir une conversation brève et naturelle en français pour "
-        "récolter le nom, l'email, et 2-3 informations de qualification utiles "
-        "pour préparer un devis. Questions à explorer selon les réponses déjà "
-        f"données (n'en pose pas plus de 2-3 au total, pas toutes d'un coup) :\n{questions}\n\n"
+        "Ton rôle : avoir une conversation naturelle en français pour récolter le nom, "
+        "l'email, et un cadrage du projet suffisamment détaillé pour que Rudy puisse "
+        "préparer un devis précis sans avoir à recontacter le visiteur pour des infos "
+        "manquantes. Explore ces pistes selon les réponses déjà données, et n'hésite pas "
+        f"à creuser au-delà si une réponse appelle une précision utile :\n{questions}\n\n"
         "Règles :\n"
-        "- Une ou deux questions par message maximum, ton direct et professionnel, pas de blabla.\n"
+        "- Une ou deux questions par message maximum (jamais toutes d'un coup), ton direct "
+        "et professionnel, pas de blabla.\n"
+        "- Adapte-toi à ce que le visiteur a déjà donné : si son message initial est déjà "
+        "détaillé et bien cadré, ne pose pas de questions superflues juste pour la forme — "
+        "propose de confirmer et de soumettre directement (demande juste nom/email si "
+        "manquants). Si le cadrage est encore flou, pose les questions utiles une à une.\n"
+        "- Si le visiteur dit explicitement qu'il ne veut pas répondre à plus de questions, "
+        "qu'il est pressé, ou qu'il veut envoyer sa demande telle quelle : n'insiste jamais. "
+        "Soumets l'outil avec les informations déjà réunies (nom et email restent "
+        "nécessaires, redemande-les si vraiment manquants, mais rien d'autre).\n"
         "- Demande le nom et l'email si le visiteur ne les a pas encore donnés.\n"
         "- N'invente jamais d'information non fournie par le visiteur.\n"
-        "- Une fois nom, email et assez de contexte réunis, appelle l'outil "
-        "submit_quote_request — n'annonce pas la soumission en texte, l'outil s'en charge.\n"
+        "- Une fois nom, email et un cadrage suffisant réunis (ou dès que le visiteur signale "
+        "vouloir s'arrêter là), appelle l'outil submit_quote_request — n'annonce pas la "
+        "soumission en texte, l'outil s'en charge.\n"
         "- Si le visiteur ne veut pas continuer ou n'a pas d'email, invite-le à écrire "
         "directement à contact@rudy-ops.fr."
     )
 
 
-def sanitize_chat_messages(raw: list) -> list[dict] | None:
-    """Valide et normalise l'historique envoyé par le frontend.
+def sanitize_chat_input(body: dict) -> tuple[str, str | None] | None:
+    """Valide le message entrant et l'identifiant de conversation.
 
-    Ne fait confiance à rien côté client : rôles limités à user/assistant,
-    contenu texte seul, longueur bornée. Retourne None si invalide.
+    Ne fait confiance à rien côté client. Retourne (message, previous_interaction_id)
+    ou None si invalide. L'historique de conversation n'est pas géré ici — il vit
+    côté Google (previous_interaction_id), le backend Flask reste sans état.
     """
-    if not isinstance(raw, list) or not raw or len(raw) > MAX_CHAT_MESSAGES:
+    message = body.get("message")
+    if not isinstance(message, str):
         return None
-    messages = []
-    for entry in raw:
-        if not isinstance(entry, dict):
-            return None
-        role = entry.get("role")
-        content = entry.get("content")
-        if role not in ("user", "assistant") or not isinstance(content, str):
-            return None
-        content = content.strip()
-        if not content or len(content) > MAX_MESSAGE_LEN:
-            return None
-        messages.append({"role": role, "content": content})
-    if messages[-1]["role"] != "user":
+    message = message.strip()
+    if not message or len(message) > MAX_MESSAGE_LEN:
         return None
-    return messages
+
+    previous_interaction_id = body.get("previous_interaction_id")
+    if previous_interaction_id is not None:
+        if not isinstance(previous_interaction_id, str) or not INTERACTION_ID_RE.match(previous_interaction_id):
+            return None
+
+    return message, previous_interaction_id
 
 
 @app.after_request
@@ -346,18 +379,10 @@ def quote_chat():
     if service_slug not in SERVICE_LABELS:
         return jsonify({"ok": False, "error": "Service inconnu"}), 400
 
-    messages = sanitize_chat_messages(body.get("messages"))
-    if messages is None:
-        if isinstance(body.get("messages"), list) and len(body["messages"]) >= MAX_CHAT_MESSAGES:
-            return jsonify({
-                "ok": True,
-                "done": False,
-                "reply": (
-                    "La conversation devient longue — pour aller plus vite, "
-                    "écrivez-moi directement à contact@rudy-ops.fr ou utilisez le formulaire ci-dessus."
-                ),
-            })
-        return jsonify({"ok": False, "error": "Historique de conversation invalide"}), 400
+    sanitized = sanitize_chat_input(body)
+    if sanitized is None:
+        return jsonify({"ok": False, "error": "Message invalide"}), 400
+    message, previous_interaction_id = sanitized
 
     system_prompt = build_quote_system_prompt(
         SERVICE_LABELS[service_slug],
@@ -365,42 +390,37 @@ def quote_chat():
     )
 
     try:
-        response = anthropic_client.messages.create(
+        interaction = genai_client.interactions.create(
             model=QUOTE_MODEL,
-            max_tokens=1024,
-            output_config={"effort": "low"},
-            system=system_prompt,
+            input=message,
+            system_instruction=system_prompt,
             tools=[QUOTE_TOOL],
-            messages=messages,
+            previous_interaction_id=previous_interaction_id,
         )
-    except anthropic.APIError:
-        logger.exception("Échec de l'appel à l'API Claude pour /quote-chat")
+    except genai_errors.APIError:
+        logger.exception("Échec de l'appel à l'API Gemini pour /quote-chat")
         return jsonify({"ok": False, "error": "Assistant indisponible, réessayez plus tard."}), 502
 
-    if response.stop_reason == "refusal":
+    fc_step = next((s for s in (interaction.steps or []) if s.type == "function_call"), None)
+
+    if fc_step is None:
+        reply = (interaction.output_text or "").strip() or "Pouvez-vous préciser votre besoin ?"
         return jsonify({
             "ok": True,
             "done": False,
-            "reply": "Je ne peux pas répondre à ce message. Pouvez-vous reformuler votre besoin ?",
+            "reply": reply,
+            "interaction_id": interaction.id,
         })
 
-    tool_use = next((b for b in response.content if b.type == "tool_use"), None)
-
-    if tool_use is None:
-        reply = next((b.text for b in response.content if b.type == "text"), "").strip()
-        if not reply:
-            reply = "Pouvez-vous préciser votre besoin ?"
-        return jsonify({"ok": True, "done": False, "reply": reply})
-
     quote_data = {
-        "name": tool_use.input.get("name", ""),
-        "email": tool_use.input.get("email", ""),
-        "company": tool_use.input.get("company", ""),
+        "name": fc_step.arguments.get("name", ""),
+        "email": fc_step.arguments.get("email", ""),
+        "company": fc_step.arguments.get("company", ""),
         "subject": SERVICE_LABELS[service_slug],
-        "summary": tool_use.input.get("summary", ""),
+        "summary": fc_step.arguments.get("summary", ""),
     }
     # Réutilise la même validation (longueurs, caractères de contrôle, format
-    # email) que le formulaire statique — le contenu vient de Claude, pas d'un
+    # email) que le formulaire statique — le contenu vient du modèle, pas d'un
     # champ de formulaire, mais il n'est pas plus digne de confiance pour autant.
     error = validate_fields(quote_data, required=("name", "email", "summary"))
     if error:
@@ -412,6 +432,7 @@ def quote_chat():
                 "Il me manque une information valide (nom ou email) pour finaliser "
                 "la demande — pouvez-vous la repréciser ?"
             ),
+            "interaction_id": interaction.id,
         })
 
     try:
