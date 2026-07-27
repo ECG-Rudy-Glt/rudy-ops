@@ -92,6 +92,20 @@ disparaît pas si le chat a un souci.
 - [ ] Vérifier la sync calendrier réel (Google Calendar ou CalDAV, à trancher côté HOMELAB étape 31)
   avant de considérer la fonctionnalité complète
 
+## Page tarifs (`/tarifs`) — FAIT
+
+- [x] TJM unique 400€/j, aligné sur les tarifs freelance junior marché français 2026 (recherche par
+  spécialité faite le 27/07 : DevOps/Sécu/IA ~400-550€/j, dev web/infra ~300-400€/j)
+- [x] Fourchettes indicatives par prestation (TJM × durée), avec mention explicite "devis final établi
+  selon le projet" — pas des prix figés
+- [x] Section "Périmètre par prestation" (inclus/hors périmètre par service, `<details>` par service) +
+  limites générales transverses (pas de langages compilés, pas d'intervention physique, pas d'astreinte
+  24/7, pas de certification engageante type ISO 27001/PASSI)
+- [x] Mention transparente de l'usage de Claude dans le processus de travail de Rudy (pas caché)
+- [x] Lien "Tarifs" ajouté dans `Nav.tsx`
+- Si les services évoluent (nouveau service, nouvelle limite découverte en mission), penser à
+  synchroniser `src/pages/tarifs.astro` en plus de `src/data/services.tsx`
+
 ## Non-objectifs (pour l'instant)
 
 - Pas de CRM complet — Vikunja suffit pour tracer les demandes à ce stade
