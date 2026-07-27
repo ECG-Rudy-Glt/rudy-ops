@@ -1,0 +1,54 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        run: |
+          if [ -d .git ]; then
+            git fetch origin main && git reset --hard origin/main
+          else
+            git clone https://forgejo.home.lab.rudy/rudy/rudy-ops.git .
+          fi
+
+      - name: Login to Forgejo registry
+        run: |
+          echo "${{ secrets.FORGEJO_REGISTRY_TOKEN }}" | \
+            docker login forgejo.home.lab.rudy -u rudy --password-stdin
+
+      - name: Build & push image
+        run: |
+          IMAGE=forgejo.home.lab.rudy/rudy/rudy-ops
+          docker build -t "${IMAGE}:${{ github.sha }}" -t "${IMAGE}:latest" .
+          docker push "${IMAGE}:${{ github.sha }}"
+          docker push "${IMAGE}:latest"
+
+      # Déployé sur lxc-portfolio (10.0.20.15), en 2e conteneur à côté de "portfolio" —
+      # site statique léger comme lui, pas de raison de provisionner un LXC dédié.
+      # Port hôte 8081 (80 déjà pris par le conteneur portfolio) — cloudflared route
+      # rudy-ops.fr vers http://localhost:8081 sur ce même hôte (voir Documentation/TODO.md
+      # du repo HOMELAB pour l'entrée d'ingress à ajouter côté cloudflared).
+      - name: Deploy to lxc-portfolio
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -m 600 /dev/null /tmp/deploy_key
+          echo "$DEPLOY_KEY" > /tmp/deploy_key
+          ssh -i /tmp/deploy_key \
+              -o StrictHostKeyChecking=no \
+              root@10.0.20.15 "
+            docker pull forgejo.home.lab.rudy/rudy/rudy-ops:latest &&
+            docker stop rudy-ops 2>/dev/null || true &&
+            docker rm   rudy-ops 2>/dev/null || true &&
+            docker run -d \
+              --name rudy-ops \
+              --restart unless-stopped \
+              -p 8081:80 \
+              forgejo.home.lab.rudy/rudy/rudy-ops:latest
+          "
+          rm -f /tmp/deploy_key
