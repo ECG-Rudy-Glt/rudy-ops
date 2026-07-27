@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import PageHero from "../components/PageHero";
 import GlassPanel from "../components/GlassPanel";
 import Breadcrumb from "../components/Breadcrumb";
-import ContactForm from "../components/ContactForm";
+import ContactPanel from "../components/ContactPanel";
 ---
 
 <Layout
@@ -20,7 +20,7 @@ import ContactForm from "../components/ContactForm";
 
     <div class="mx-auto mt-14 max-w-[720px]">
       <GlassPanel>
-        <ContactForm client:load />
+        <ContactPanel client:load />
       </GlassPanel>
     </div>
   </main>

@@ -9,14 +9,14 @@
 - [x] Retrait de la pastille "Disponible en soirée et week-end" du Hero (redondante avec l'AvailabilityCard)
 - [x] Liens vers l'ancien domaine portfolio (`portfolio.rudy-ops.fr`) corrigés vers `portfolio.gault-rudy.com`
 
-## État actuel du formulaire de contact
+## État actuel du formulaire de contact — FAIT (voir plan d'implémentation ci-dessous)
 
-- `ContactForm.tsx` poste vers Formspree (`FORM_ENDPOINT` = placeholder `REPLACE_WITH_YOUR_FORM_ID`,
-  **pas encore configuré** — le formulaire ne fonctionne pas tel quel)
+- `ContactForm.tsx` poste en JSON vers le backend self-hosted (`backend/app.py`, `/contact`), plus de
+  Formspree
 - Champs actuels : Nom, Email, Entreprise (optionnel), Sujet de la demande (liste déroulante, un
-  sujet parmi les services + "Autre"), Message
-- Aucune réponse automatique à l'envoi — le client voit juste "Message envoyé", sans email de
-  confirmation
+  sujet parmi les services + "Autre"), Message, + honeypot caché anti-spam
+- Envoi automatique : accusé de réception au client, notification complète à Rudy, tâche Vikunja
+  créée dans le projet "Pro"
 
 ## Objectif — système de réponse automatique
 
@@ -40,27 +40,40 @@ Piste retenue à date : **backend self-hosted + Vikunja**, cohérent avec l'infr
 déjà utilisée pour gérer des tâches). Dogfooding pertinent vu que le site vend justement de
 l'intégration IA/automatisation dans les workflows.
 
-## Plan d'implémentation
+## Plan d'implémentation — FAIT
 
-- [ ] **1. Backend de réception** — petit service (Node/Python) qui reçoit le POST du formulaire
-  - À héberger sur le homelab (nouveau LXC léger, ou conteneur sur un hôte Docker existant) et exposer
-    publiquement via le même pattern Cloudflare Tunnel que le portfolio/Vikunja
-  - Remplacer `FORM_ENDPOINT` dans `ContactForm.tsx` par l'URL de ce backend
-- [ ] **2. Email de confirmation automatique au client**
-  - SMTP Gmail (réutiliser le pattern Alertmanager : App Password dédié, stocké dans OpenBao
-    `secret/homelab/rudy-ops`, jamais dans le code)
-  - Contenu : accusé de réception, rappel des sujets sélectionnés, délai de réponse indicatif
-- [ ] **3. Notification à Rudy**
-  - Email avec le détail complet de la demande (nom, email, entreprise, sujets, message)
-- [ ] **4. Création automatique d'une tâche Vikunja** (projet "Pro")
-  - Titre = nom + sujets sélectionnés, description = message complet
-  - Token API Vikunja dédié (scope limité au projet Pro si possible), stocké dans OpenBao
-- [ ] **5. Anti-spam minimal**
-  - Honeypot field (champ caché, invisible pour un humain, rempli par les bots) — simple et suffisant
-    à ce stade, pas besoin de reCAPTCHA
-- [ ] **6. Documenter dans HOMELAB** — si le backend est hébergé sur l'infra existante, ajouter une
-  entrée dans `Documentation/DID.md`/`TODO.md` du repo HOMELAB (nouveau service = nouvelle ligne dans
-  l'inventaire), pas seulement dans ce TODO.md local
+- [x] **1. Backend de réception** — `backend/app.py` (Flask), déployé comme second conteneur sur
+  `lxc-portfolio` (port 8081 côté hôte), déployé via `.forgejo/workflows/deploy.yml`
+- [x] **2. Email de confirmation automatique au client** — SMTP Gmail, pattern Alertmanager (App
+  Password dédié, via variables d'environnement, secret destiné à OpenBao)
+- [x] **3. Notification à Rudy** — email avec le détail complet de la demande
+- [x] **4. Création automatique d'une tâche Vikunja** (projet "Pro")
+- [x] **5. Anti-spam minimal** — honeypot `website` (caché en CSS, hors tabulation)
+- [ ] **6. Documenter dans HOMELAB** — ajouter une entrée dans `Documentation/DID.md`/`TODO.md` du
+  repo HOMELAB (nouveau service = nouvelle ligne dans l'inventaire) — pas encore fait, à ne pas oublier
+
+## Assistant IA de devis (chatbot) — additif au formulaire, formulaire gardé en secours
+
+Décidé : le chatbot vient **en plus** du formulaire statique (onglet "Assistant IA" à côté de
+"Formulaire" sur `/contact`, cf. `ContactPanel.tsx`) — le formulaire reste l'option par défaut et ne
+disparaît pas si le chat a un souci.
+
+- [x] Endpoint `/quote-chat` (`backend/app.py`) — API Claude (**Sonnet 5**, `claude-sonnet-5` —
+  suffisant pour ce cas d'usage simple, pas besoin d'Opus), avec un outil `submit_quote_request` que
+  Claude appelle une fois nom/email/résumé réunis (jamais de texte libre parsé)
+- [x] Questions de qualification adaptées par service (`SERVICE_QUESTIONS`, à garder synchronisé avec
+  `src/data/services.tsx` si un service est ajouté/renommé)
+- [x] Sécurité : les données extraites par Claude repassent par la **même validation** que le
+  formulaire statique (longueur, format email, caractères de contrôle anti-injection SMTP) avant tout
+  envoi d'email ou création de tâche Vikunja — testé (tentative d'injection d'en-tête via le nom,
+  email invalide, historique de conversation trop long)
+- [x] Composant `QuoteChat.tsx` (choix du service puis conversation), testé en local (build Astro +
+  tests backend avec l'appel Claude mocké)
+- [ ] **Reste à faire côté déploiement** (à faire par Rudy, pas depuis cet environnement) :
+  - Ajouter le secret `ANTHROPIC_API_KEY` (OpenBao, comme les autres secrets du backend)
+  - Passer la variable d'environnement au conteneur backend (même pattern que
+    `SMTP_USER`/`VIKUNJA_API_TOKEN`)
+  - Redéployer et tester une conversation réelle de bout en bout
 
 ## Calendrier — prise de rendez-vous (Cal.com auto-hébergé)
 
