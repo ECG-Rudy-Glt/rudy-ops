@@ -153,7 +153,7 @@ def notify_telegram(text: str) -> None:
         logger.exception("Échec de la notification Telegram (non bloquant)")
 
 
-def create_vikunja_task(data: dict) -> None:
+def create_vikunja_task(data: dict, due_date: str | None = None) -> None:
     title = f"{data['name']} : {data['subject']}"
     company = f" ({data['company']})" if data.get("company") else ""
     description = (
@@ -162,10 +162,13 @@ def create_vikunja_task(data: dict) -> None:
         f"**Sujet** : {data['subject']}\n\n"
         f"{data['message']}"
     )
+    task = {"title": title + company, "description": description}
+    if due_date:
+        task["due_date"] = due_date
     resp = requests.put(
         f"{VIKUNJA_API_URL}/projects/{VIKUNJA_PROJECT_ID}/tasks",
         headers={"Authorization": f"Bearer {VIKUNJA_API_TOKEN}"},
-        json={"title": title + company, "description": description},
+        json=task,
         timeout=10,
     )
     resp.raise_for_status()
