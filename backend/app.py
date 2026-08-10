@@ -55,8 +55,12 @@ VIKUNJA_API_URL = os.environ["VIKUNJA_API_URL"]  # ex: http://10.0.20.52:3456/ap
 VIKUNJA_API_TOKEN = os.environ["VIKUNJA_API_TOKEN"]
 VIKUNJA_PROJECT_ID = os.environ["VIKUNJA_PROJECT_ID"]
 
-GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
-genai_client = genai.Client(api_key=GEMINI_API_KEY)
+# Optionnel : le chatbot de devis (/quote-chat) est un additif au formulaire
+# statique (toujours fonctionnel sans elle), pas un prérequis au démarrage —
+# désactivé tant qu'aucune clé n'est fournie plutôt que de faire planter tout
+# le backend (y compris /contact) pour une fonctionnalité annexe.
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+genai_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
 ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "https://rudy-ops.fr")
 
@@ -373,6 +377,12 @@ def quote_chat_preflight():
 
 @app.route("/quote-chat", methods=["POST"])
 def quote_chat():
+    if genai_client is None:
+        return jsonify({
+            "ok": False,
+            "error": "Assistant IA temporairement désactivé, utilisez le formulaire ci-contre.",
+        }), 503
+
     body = request.get_json(silent=True) or {}
 
     service_slug = body.get("service")
