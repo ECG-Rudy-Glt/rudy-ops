@@ -385,6 +385,7 @@ def contact():
         send_email(NOTIFY_EMAIL, f"[rudy-ops.fr] Nouvelle demande : {data['subject']}", notify_body)
 
         create_vikunja_task(data)
+        notify_telegram(f"Nouvelle demande (formulaire) : {data['name']} — {data['subject']}")
     except Exception:
         logger.exception("Échec du traitement de la demande de contact")
         return jsonify({"ok": False, "error": "Erreur serveur, réessayez plus tard."}), 500
@@ -489,6 +490,7 @@ def quote_chat():
         send_email(NOTIFY_EMAIL, f"[rudy-ops.fr] Nouvelle demande (chat) : {quote_data['subject']}", notify_body)
 
         create_vikunja_task({**quote_data, "message": quote_data["summary"]})
+        notify_telegram(f"Nouvelle demande (chat) : {quote_data['name']} — {quote_data['subject']}")
     except Exception:
         logger.exception("Échec du traitement de la demande de devis (chat)")
         return jsonify({"ok": False, "error": "Erreur serveur, réessayez plus tard."}), 500
