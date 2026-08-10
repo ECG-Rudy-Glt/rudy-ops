@@ -16,7 +16,8 @@
 - Champs actuels : Nom, Email, Entreprise (optionnel), Sujet de la demande (liste déroulante, un
   sujet parmi les services + "Autre"), Message, + honeypot caché anti-spam
 - Envoi automatique : accusé de réception au client, notification complète à Rudy, tâche Vikunja
-  créée dans le projet "Pro"
+  créée dans le projet **"Freelance"** (id 6, basculé depuis "Pro" le 10/08 — projet dédié aux
+  demandes rudy-ops.fr), + notification Telegram (bot `Rudy_freelance_bot`)
 
 ## Objectif — système de réponse automatique
 
@@ -48,19 +49,26 @@ l'intégration IA/automatisation dans les workflows.
 - [x] **2. Email de confirmation automatique au client** — SMTP Gmail, pattern Alertmanager (App
   Password dédié, via variables d'environnement, secret destiné à OpenBao)
 - [x] **3. Notification à Rudy** — email avec le détail complet de la demande
-- [x] **4. Création automatique d'une tâche Vikunja** (projet "Pro", id 3) — token API +
-  `VIKUNJA_PROJECT_ID` posés en secrets Forgejo Actions le 10/08
+- [x] **4. Création automatique d'une tâche Vikunja** (projet **"Freelance"**, id 6 — bascule
+  depuis "Pro" le 10/08) — token API + `VIKUNJA_PROJECT_ID` posés en secrets Forgejo Actions
 - [x] **5. Anti-spam minimal** — honeypot `website` (caché en CSS, hors tabulation)
-- [x] **6. Documenter dans HOMELAB** — `Documentation/DID.md` (entrée 10/08) et `Documentation/TODO.md`
-  (item 44) du repo HOMELAB, fait
+- [x] **6. Documenter dans HOMELAB** — `Documentation/DID.md` (entrées 10/08) et
+  `Documentation/TODO.md` (items 31/44) du repo HOMELAB, fait
 
-### Reste à faire pour un déploiement réel (10/08)
+### Déploiement réel — FAIT le 10/08
 
-- [ ] Ajouter la clé publique `rudy-ops-deploy` dans `/root/.ssh/authorized_keys` sur
-  `lxc-portfolio` (bloquant — pas d'accès SSH direct depuis la session qui a préparé ce qui précède)
-- [ ] Secrets SMTP (`SMTP_USER`/`SMTP_PASSWORD`/`NOTIFY_EMAIL`) en secrets Forgejo Actions
-- [ ] Copie de tous les secrets applicatifs dans OpenBao `secret/homelab/rudy-ops`
-- [ ] Ingress Cloudflare Tunnel (`rudy-ops.fr`, `api.rudy-ops.fr`) sur `lxc-portfolio` + routes DNS
+- [x] Clé publique `rudy-ops-deploy` déjà en place, backend accessible en SSH
+- [x] Secrets SMTP OVH (`contact@rudy-ops.fr`, `SMTP_HOST=ssl0.ovh.net:587`), Vikunja, Gemini,
+  Telegram — tous stockés dans OpenBao `secret/homelab/rudy-ops` (source de vérité) et copiés en
+  secrets Forgejo Actions
+- [x] Ingress Cloudflare Tunnel (`rudy-ops.fr`, `api.rudy-ops.fr`) — déjà en place avant cette
+  session
+- [x] **Test réel de bout en bout** : `/contact` → email client + notification + tâche Vikunja +
+  Telegram, tous confirmés reçus
+- [x] **Bugs trouvés et corrigés en testant** : `SMTP_HOST`/`SMTP_PORT` et
+  `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` manquaient dans le `docker run` de
+  `deploy-backend.yml` malgré leur présence dans le bloc `env:` du step CI (deux oublis
+  distincts, voir `Documentation/DID.md` 10/08 du repo HOMELAB pour le détail)
 
 ## Assistant IA de devis (chatbot) — additif au formulaire, formulaire gardé en secours
 
@@ -90,31 +98,42 @@ disparaît pas si le chat a un souci.
   email invalide, message trop long, identifiant de conversation malformé)
 - [x] Composant `QuoteChat.tsx` (choix du service puis conversation), testé en local (build Astro +
   tests backend avec l'appel Claude mocké)
-- [x] **10/08** : `GEMINI_API_KEY` rendue optionnelle dans `backend/app.py` — décision utilisateur
-  de garder le chatbot désactivé pour l'instant, le backend (formulaire inclus) ne doit pas en
-  dépendre pour démarrer. `/quote-chat` répond `503` proprement tant qu'aucune clé n'est fournie.
-- [ ] **Activation différée, quand voulu** :
-  - Générer `GEMINI_API_KEY` sur aistudio.google.com (tier gratuit)
-  - Poser le secret `GEMINI_API_KEY` en secret Forgejo Actions du repo
-  - Redéployer (`git push` suffit, la CI relit les secrets à chaque run) et tester une
-    conversation réelle de bout en bout
+- [x] **10/08** : `GEMINI_API_KEY` rendue optionnelle dans `backend/app.py` — le backend
+  (formulaire inclus) ne dépend pas d'elle pour démarrer, `/quote-chat` répondrait `503`
+  proprement si elle manquait.
+- [x] **Activée le 10/08** : clé Gemini générée et posée (OpenBao + secrets Forgejo Actions) —
+  chatbot en ligne. Pas encore testé avec une vraie conversation multi-tours de bout en bout
+  (juste `/contact` classique testé pour l'instant).
 
-## Calendrier — prise de rendez-vous (Cal.com auto-hébergé)
+## Calendrier — prise de rendez-vous (Cal.com auto-hébergé) — déployé le 10/08
 
 - Décidé le 07/07 : **Cal.com auto-hébergé**, pas de service tiers (Calendly/Cal.com cloud)
-- La page `/disponibilites` a déjà l'emplacement prévu (placeholder "Emplacement du widget de prise
-  de rendez-vous (Cal.com auto-hébergé)") — reste à déployer le service et brancher le vrai widget
-- **Déploiement infra tracké dans HOMELAB**, pas ici : voir `Documentation/TODO.md` étape 31 du repo
-  HOMELAB (LXC 111, 10.0.20.56, exposition publique sans Cloudflare Access — la réservation doit être
-  possible sans compte)
-- [ ] Une fois le service Cal.com en ligne : remplacer le placeholder dans
-  `src/pages/disponibilites.astro` (la div avec la bordure en pointillés) par le vrai embed/lien
-  Cal.com
-- [ ] Décider du mode d'intégration : iframe embed officiel Cal.com vs simple lien vers
-  `cal.rudy-ops.fr/<slug>` qui ouvre dans un nouvel onglet — l'embed donne une meilleure UX (reste
-  sur le site) mais demande le script `embed.js` de Cal.com
-- [ ] Vérifier la sync calendrier réel (Google Calendar ou CalDAV, à trancher côté HOMELAB étape 31)
-  avant de considérer la fonctionnalité complète
+- **Déploiement infra tracké dans HOMELAB** : voir `Documentation/TODO.md` étape 31 + `DID.md`
+  10/08 du repo HOMELAB (LXC 111, `10.0.20.56`, public sur `https://cal.rudy-ops.fr` sans
+  Cloudflare Access — réservation possible sans compte, confirmé HTTP 200)
+- [x] Widget branché dans `src/pages/disponibilites.astro` — embed inline officiel Cal.com
+  (`embed.js`), pas un simple iframe/lien (meilleure UX, reste sur le site). `calLink` = username
+  `rudy` — **à confirmer/ajuster** une fois le compte admin Cal.com effectivement créé (pas fait
+  au moment de ce commit, juste supposé par cohérence avec le username Vikunja)
+- [ ] **Sync calendrier Outlook — bloqué** : CalDAV générique incompatible avec Outlook.com/
+  Microsoft 365 (abandonné par Microsoft), connecteur "Microsoft Exchange" (EWS) tenté ensuite →
+  `401 Unauthorized` (authentification basique désactivée côté Microsoft). Pas bloquant pour les
+  réservations clients (Cal.com gère ses dispos tout seul), mais pas de garde-fou contre un
+  double-booking avec d'autres rendez-vous hors Cal.com pour l'instant. Reprendre avec soit une
+  app OAuth "Office 365 Calendar" (enregistrement Azure AD requis), soit Google Calendar en repli
+- [ ] **Webhook Cal.com → tâche Vikunja avec la date du RDV** (demandé 10/08) —
+  `create_vikunja_task()` accepte déjà un `due_date` optionnel (commit `b1f4e4e`), mais la route
+  `/calcom-webhook` (vérification signature `X-Cal-Signature-256`, parsing `BOOKING_CREATED`,
+  config du webhook côté Cal.com une fois le compte créé) reste à écrire
+
+## Reste ouvert (10/08)
+
+- [ ] **Email de confirmation stylisé** — `send_email()` n'envoie que du texte brut
+  (`EmailMessage.set_content`) ; passer en HTML avec fallback texte (`multipart/alternative`)
+  pour un rendu plus soigné sur `/contact` et `/quote-chat`
+- [x] **Bug corrigé** : `--accent` (utilisée dans `ContactPanel.tsx` et `QuoteChat.tsx`) n'était
+  définie nulle part dans `global.css` → bouton "Assistant IA" actif blanc sur fond clair,
+  illisible. Remplacée par `--terracotta`, seule couleur d'accent réelle de la palette
 
 ## Page tarifs (`/tarifs`) — FAIT
 
