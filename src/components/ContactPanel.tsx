@@ -36,7 +36,7 @@ function TabButton({
       className="rounded-full border px-4 py-2 font-semibold transition"
       style={
         active
-          ? { background: "var(--accent)", borderColor: "var(--accent)", color: "var(--bg)" }
+          ? { background: "var(--terracotta)", borderColor: "var(--terracotta)", color: "var(--bg)" }
           : { background: "transparent", borderColor: "var(--card-border)", color: "var(--ink-muted)" }
       }
     >

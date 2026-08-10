@@ -148,7 +148,7 @@ export default function QuoteChat() {
             className="max-w-[85%] rounded-2xl px-4 py-2 text-sm"
             style={
               m.role === "user"
-                ? { alignSelf: "flex-end", background: "var(--accent)", color: "var(--bg)" }
+                ? { alignSelf: "flex-end", background: "var(--terracotta)", color: "var(--bg)" }
                 : { alignSelf: "flex-start", background: "var(--bg-elevated, transparent)", color: "var(--ink)" }
             }
           >

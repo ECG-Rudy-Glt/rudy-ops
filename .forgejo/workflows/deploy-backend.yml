@@ -36,6 +36,8 @@ jobs:
       - name: Deploy to lxc-portfolio
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
@@ -43,6 +45,8 @@ jobs:
           VIKUNJA_API_TOKEN: ${{ secrets.VIKUNJA_API_TOKEN }}
           VIKUNJA_PROJECT_ID: ${{ secrets.VIKUNJA_PROJECT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           install -m 600 /dev/null /tmp/deploy_key
           echo "$DEPLOY_KEY" > /tmp/deploy_key
@@ -56,6 +60,8 @@ jobs:
               --name rudy-ops-backend \
               --restart unless-stopped \
               -p 8082:8082 \
+              -e SMTP_HOST='$SMTP_HOST' \
+              -e SMTP_PORT='$SMTP_PORT' \
               -e SMTP_USER='$SMTP_USER' \
               -e SMTP_PASSWORD='$SMTP_PASSWORD' \
               -e NOTIFY_EMAIL='$NOTIFY_EMAIL' \
