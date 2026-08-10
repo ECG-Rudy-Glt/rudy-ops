@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rudy-ops.fr/sitemap-index.xml

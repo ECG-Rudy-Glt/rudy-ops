@@ -114,13 +114,13 @@ export const services = [
   {
     slug: "securite",
     Icon: IconShield,
-    title: "Sécurité",
+    title: "Sécurité & DevSecOps",
     description:
-      "Durcissement, gestion des secrets, audits réguliers et supervision : la sécurité intégrée des la conception, pas ajoutee apres coup.",
-    tags: ["Hardening", "Audit", "Secrets"],
+      "Durcissement, gestion des secrets, audits réguliers et supervision : la sécurité intégrée dès la conception (DevSecOps), pas ajoutée après coup.",
+    tags: ["DevSecOps", "Hardening", "Audit"],
     href: "/services/securite",
     longDescription:
-      "La sécurité se pense des la conception, pas en dernier recours. Je durcis vos systemes, mets en place une gestion rigoureuse des secrets et réalise des audits réguliers pour identifier les points faibles avant qu'ils ne deviennent des incidents.",
+      "La sécurité se pense dès la conception, pas en dernier recours — c'est l'approche DevSecOps. Je durcis vos systemes, mets en place une gestion rigoureuse des secrets et réalise des audits réguliers pour identifier les points faibles avant qu'ils ne deviennent des incidents.",
     bullets: [
       "Hardening système et réseau",
       "Gestion centralisee des secrets (vault, rotation)",

@@ -13,13 +13,15 @@ interface Props {
 const { title, description, canonical } = Astro.props;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, "https://rudy-ops.fr").toString();
 
+const ogImageUrl = new URL("/images/avatar.png", "https://rudy-ops.fr").toString();
+
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
   name: "rudy-ops.fr",
-  alternateName: "Rudy Gault",
+  alternateName: "Rudy Gault — Freelance DevOps, Platform Engineer & DevSecOps Tours",
   description:
-    "Freelance DevOps et Platform Engineer basé à Tours : Infrastructure as Code, infrastructure on-premise, sites web statiques et dynamiques, IA dans les workflows, sécurité.",
+    "Freelance DevOps, Platform Engineer et DevSecOps basé à Tours : Infrastructure as Code, infrastructure on-premise, sites web statiques et dynamiques, IA dans les workflows, sécurité.",
   url: "https://rudy-ops.fr",
   address: {
     "@type": "PostalAddress",
@@ -32,6 +34,16 @@ const jsonLd = {
     "@type": "Person",
     name: "Rudy Gault",
   },
+  knowsAbout: [
+    "Freelance DevOps",
+    "DevSecOps",
+    "Infrastructure as Code",
+    "Terraform",
+    "Ansible",
+    "Kubernetes",
+    "Infrastructure on-premise",
+    "Sécurité informatique",
+  ],
 };
 ---
 
@@ -56,7 +68,10 @@ const jsonLd = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content="fr_FR" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageUrl} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
     <script is:inline>
