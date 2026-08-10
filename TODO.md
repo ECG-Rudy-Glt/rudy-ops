@@ -42,15 +42,25 @@ l'intégration IA/automatisation dans les workflows.
 
 ## Plan d'implémentation — FAIT
 
-- [x] **1. Backend de réception** — `backend/app.py` (Flask), déployé comme second conteneur sur
-  `lxc-portfolio` (port 8081 côté hôte), déployé via `.forgejo/workflows/deploy.yml`
+- [x] **1. Backend de réception** — `backend/app.py` (Flask), déployé comme troisième conteneur sur
+  `lxc-portfolio` (port 8082 côté hôte — 8081 est le frontend), pipeline
+  `.forgejo/workflows/deploy-backend.yml` écrit le 10/08 (manquait jusque-là)
 - [x] **2. Email de confirmation automatique au client** — SMTP Gmail, pattern Alertmanager (App
   Password dédié, via variables d'environnement, secret destiné à OpenBao)
 - [x] **3. Notification à Rudy** — email avec le détail complet de la demande
-- [x] **4. Création automatique d'une tâche Vikunja** (projet "Pro")
+- [x] **4. Création automatique d'une tâche Vikunja** (projet "Pro", id 3) — token API +
+  `VIKUNJA_PROJECT_ID` posés en secrets Forgejo Actions le 10/08
 - [x] **5. Anti-spam minimal** — honeypot `website` (caché en CSS, hors tabulation)
-- [ ] **6. Documenter dans HOMELAB** — ajouter une entrée dans `Documentation/DID.md`/`TODO.md` du
-  repo HOMELAB (nouveau service = nouvelle ligne dans l'inventaire) — pas encore fait, à ne pas oublier
+- [x] **6. Documenter dans HOMELAB** — `Documentation/DID.md` (entrée 10/08) et `Documentation/TODO.md`
+  (item 44) du repo HOMELAB, fait
+
+### Reste à faire pour un déploiement réel (10/08)
+
+- [ ] Ajouter la clé publique `rudy-ops-deploy` dans `/root/.ssh/authorized_keys` sur
+  `lxc-portfolio` (bloquant — pas d'accès SSH direct depuis la session qui a préparé ce qui précède)
+- [ ] Secrets SMTP (`SMTP_USER`/`SMTP_PASSWORD`/`NOTIFY_EMAIL`) en secrets Forgejo Actions
+- [ ] Copie de tous les secrets applicatifs dans OpenBao `secret/homelab/rudy-ops`
+- [ ] Ingress Cloudflare Tunnel (`rudy-ops.fr`, `api.rudy-ops.fr`) sur `lxc-portfolio` + routes DNS
 
 ## Assistant IA de devis (chatbot) — additif au formulaire, formulaire gardé en secours
 
@@ -80,11 +90,14 @@ disparaît pas si le chat a un souci.
   email invalide, message trop long, identifiant de conversation malformé)
 - [x] Composant `QuoteChat.tsx` (choix du service puis conversation), testé en local (build Astro +
   tests backend avec l'appel Claude mocké)
-- [ ] **Reste à faire côté déploiement** (à faire par Rudy, pas depuis cet environnement) :
-  - Ajouter le secret `ANTHROPIC_API_KEY` (OpenBao, comme les autres secrets du backend)
-  - Passer la variable d'environnement au conteneur backend (même pattern que
-    `SMTP_USER`/`VIKUNJA_API_TOKEN`)
-  - Redéployer et tester une conversation réelle de bout en bout
+- [x] **10/08** : `GEMINI_API_KEY` rendue optionnelle dans `backend/app.py` — décision utilisateur
+  de garder le chatbot désactivé pour l'instant, le backend (formulaire inclus) ne doit pas en
+  dépendre pour démarrer. `/quote-chat` répond `503` proprement tant qu'aucune clé n'est fournie.
+- [ ] **Activation différée, quand voulu** :
+  - Générer `GEMINI_API_KEY` sur aistudio.google.com (tier gratuit)
+  - Poser le secret `GEMINI_API_KEY` en secret Forgejo Actions du repo
+  - Redéployer (`git push` suffit, la CI relit les secrets à chaque run) et tester une
+    conversation réelle de bout en bout
 
 ## Calendrier — prise de rendez-vous (Cal.com auto-hébergé)
 
