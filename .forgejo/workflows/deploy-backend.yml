@@ -69,6 +69,8 @@ jobs:
               -e VIKUNJA_API_TOKEN='$VIKUNJA_API_TOKEN' \
               -e VIKUNJA_PROJECT_ID='$VIKUNJA_PROJECT_ID' \
               -e GEMINI_API_KEY='$GEMINI_API_KEY' \
+              -e TELEGRAM_BOT_TOKEN='$TELEGRAM_BOT_TOKEN' \
+              -e TELEGRAM_CHAT_ID='$TELEGRAM_CHAT_ID' \
               forgejo.home.lab.rudy/rudy/rudy-ops-backend:latest
           "
           rm -f /tmp/deploy_key
