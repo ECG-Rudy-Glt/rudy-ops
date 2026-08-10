@@ -120,7 +120,7 @@ export const services = [
     tags: ["DevSecOps", "Hardening", "Audit"],
     href: "/services/securite",
     longDescription:
-      "La sécurité se pense dès la conception, pas en dernier recours — c'est l'approche DevSecOps. Je durcis vos systemes, mets en place une gestion rigoureuse des secrets et réalise des audits réguliers pour identifier les points faibles avant qu'ils ne deviennent des incidents.",
+      "La sécurité se pense dès la conception, pas en dernier recours : c'est l'approche DevSecOps. Je durcis vos systemes, mets en place une gestion rigoureuse des secrets et réalise des audits réguliers pour identifier les points faibles avant qu'ils ne deviennent des incidents.",
     bullets: [
       "Hardening système et réseau",
       "Gestion centralisee des secrets (vault, rotation)",

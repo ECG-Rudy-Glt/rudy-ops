@@ -56,19 +56,24 @@ import { IconServer, IconShield } from "../components/icons";
         </div>
 
         <div class="mt-6 border-t pt-6" style={{ borderColor: "var(--card-border)" }}>
-          <div class="flex justify-between border-b py-2.5 text-[0.95rem]" style={{ borderColor: "var(--card-border)" }}>
+          <div class="flex flex-col gap-1 border-b py-2.5 text-[0.95rem] sm:flex-row sm:items-center sm:justify-between sm:gap-4" style={{ borderColor: "var(--card-border)" }}>
             <span style={{ color: "var(--ink-muted)" }}>Lundi - Vendredi</span>
             <span class="font-semibold">18h00 - 23h00</span>
           </div>
-          <div class="flex justify-between border-b py-2.5 text-[0.95rem]" style={{ borderColor: "var(--card-border)" }}>
+          <div class="flex flex-col gap-1 border-b py-2.5 text-[0.95rem] sm:flex-row sm:items-center sm:justify-between sm:gap-4" style={{ borderColor: "var(--card-border)" }}>
             <span style={{ color: "var(--ink-muted)" }}>Samedi - Dimanche</span>
             <span class="font-semibold">Sur créneaux réservés</span>
           </div>
-          <div class="flex justify-between py-2.5 text-[0.95rem]">
+          <div class="flex flex-col gap-1 py-2.5 text-[0.95rem] sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <span style={{ color: "var(--ink-muted)" }}>Besoin d'un délai différent ?</span>
             <span class="font-semibold">Devis sur mesure possible</span>
           </div>
         </div>
+
+        <p class="mt-4 text-[0.9rem] leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+          Une demande spécifique (créneau hors de ces horaires, urgence, besoin particulier) ?{" "}
+          <a href="/contact" class="underline" style={{ color: "var(--ink)" }}>Décrivez-la via le formulaire de contact</a>, sujet "Autre" si aucun service ne correspond.
+        </p>
       </GlassPanel>
     </div>
 

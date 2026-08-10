@@ -3,12 +3,12 @@ import { services } from "../data/services";
 
 const CHAT_ENDPOINT = "https://api.rudy-ops.fr/quote-chat";
 // Repère côté client uniquement, pour couper la conversation après un certain
-// nombre d'échanges — le backend est sans état (l'historique vit côté Google
+// nombre d'échanges : le backend est sans état (l'historique vit côté Google
 // via previous_interaction_id), donc c'est ici que la limite de bon sens vit.
 const MAX_TURNS = 12;
 
 // Suggestions de premier message par service, pour éviter d'avoir à taper une
-// phrase complète pour démarrer — cliquer une bulle envoie directement le texte.
+// phrase complète pour démarrer : cliquer une bulle envoie directement le texte.
 const STARTER_PROMPTS: Record<string, string[]> = {
   "devops-iac": [
     "Je veux mettre en place un pipeline CI/CD",
@@ -49,7 +49,7 @@ export default function QuoteChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "error" | "maxed">("idle");
-  // Identifiant opaque renvoyé par le backend (previous_interaction_id côté Gemini) —
+  // Identifiant opaque renvoyé par le backend (previous_interaction_id côté Gemini) :
   // on ne renvoie que ça + le dernier message, jamais tout l'historique.
   const interactionIdRef = useRef<string | null>(null);
   const turnCountRef = useRef(0);
@@ -186,11 +186,11 @@ export default function QuoteChat() {
 
       {status === "done" ? (
         <p className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-          Demande envoyée — à bientôt !
+          Demande envoyée, à bientôt !
         </p>
       ) : status === "maxed" ? (
         <p className="text-sm" style={{ color: "var(--ink-muted)" }}>
-          La conversation devient longue — pour aller plus vite, écrivez-moi directement à{" "}
+          La conversation devient longue : pour aller plus vite, écrivez-moi directement à{" "}
           <a href="mailto:contact@rudy-ops.fr" className="underline">contact@rudy-ops.fr</a> ou utilisez le
           formulaire ci-dessus.
         </p>
