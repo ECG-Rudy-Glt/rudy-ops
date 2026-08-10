@@ -45,8 +45,9 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 64 * 1024  # 64 Ko — couvre l'historique du chat, coupe l'abus de payload
 
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
+# Configurable, pas figé sur un fournisseur (passé de Gmail à l'email OVH du domaine le 10/08).
+SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SMTP_USER = os.environ["SMTP_USER"]
 SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
 NOTIFY_EMAIL = os.environ["NOTIFY_EMAIL"]
@@ -61,6 +62,12 @@ VIKUNJA_PROJECT_ID = os.environ["VIKUNJA_PROJECT_ID"]
 # le backend (y compris /contact) pour une fonctionnalité annexe.
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 genai_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+
+# Optionnel également : notification Telegram en plus de l'email, pour être
+# prévenu plus vite qu'une demande arrive. Silencieux si non configuré (pas de
+# raison de bloquer /contact pour un canal de notif secondaire).
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
 ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "https://rudy-ops.fr")
 
@@ -131,8 +138,23 @@ def send_email(to: str, subject: str, body: str) -> None:
         smtp.send_message(msg)
 
 
+def notify_telegram(text: str) -> None:
+    """Notif best-effort — n'échoue jamais bruyamment, un canal secondaire ne doit pas
+    faire échouer /contact si Telegram est down ou mal configuré."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+            json={"chat_id": TELEGRAM_CHAT_ID, "text": text},
+            timeout=10,
+        )
+    except Exception:
+        logger.exception("Échec de la notification Telegram (non bloquant)")
+
+
 def create_vikunja_task(data: dict) -> None:
-    title = f"{data['name']} — {data['subject']}"
+    title = f"{data['name']} : {data['subject']}"
     company = f" ({data['company']})" if data.get("company") else ""
     description = (
         f"**Email** : {data['email']}\n"
@@ -350,7 +372,7 @@ def contact():
             f"- Message : {data['message']}\n\n"
             "À bientôt,\nRudy"
         )
-        send_email(data["email"], "Votre demande — rudy-ops.fr", client_body)
+        send_email(data["email"], "Votre demande, rudy-ops.fr", client_body)
 
         notify_body = (
             f"Nouvelle demande depuis rudy-ops.fr\n\n"
@@ -360,7 +382,7 @@ def contact():
             f"Sujet : {data['subject']}\n\n"
             f"Message :\n{data['message']}"
         )
-        send_email(NOTIFY_EMAIL, f"[rudy-ops.fr] Nouvelle demande — {data['subject']}", notify_body)
+        send_email(NOTIFY_EMAIL, f"[rudy-ops.fr] Nouvelle demande : {data['subject']}", notify_body)
 
         create_vikunja_task(data)
     except Exception:
@@ -440,7 +462,7 @@ def quote_chat():
             "done": False,
             "reply": (
                 "Il me manque une information valide (nom ou email) pour finaliser "
-                "la demande — pouvez-vous la repréciser ?"
+                "la demande, pouvez-vous la repréciser ?"
             ),
             "interaction_id": interaction.id,
         })
@@ -454,7 +476,7 @@ def quote_chat():
             f"{quote_data['summary']}\n\n"
             "À bientôt,\nRudy"
         )
-        send_email(quote_data["email"], "Votre demande — rudy-ops.fr", client_body)
+        send_email(quote_data["email"], "Votre demande, rudy-ops.fr", client_body)
 
         notify_body = (
             f"Nouvelle demande depuis l'assistant IA de rudy-ops.fr\n\n"
@@ -464,7 +486,7 @@ def quote_chat():
             f"Service : {quote_data['subject']}\n\n"
             f"Résumé :\n{quote_data['summary']}"
         )
-        send_email(NOTIFY_EMAIL, f"[rudy-ops.fr] Nouvelle demande (chat) — {quote_data['subject']}", notify_body)
+        send_email(NOTIFY_EMAIL, f"[rudy-ops.fr] Nouvelle demande (chat) : {quote_data['subject']}", notify_body)
 
         create_vikunja_task({**quote_data, "message": quote_data["summary"]})
     except Exception:
