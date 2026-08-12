@@ -113,24 +113,32 @@ disparaît pas si le chat a un souci.
   Cloudflare Access — réservation possible sans compte, confirmé HTTP 200)
 - [x] Widget branché dans `src/pages/disponibilites.astro` — embed inline officiel Cal.com
   (`embed.js`), pas un simple iframe/lien (meilleure UX, reste sur le site). `calLink` = username
-  `rudy` — **à confirmer/ajuster** une fois le compte admin Cal.com effectivement créé (pas fait
-  au moment de ce commit, juste supposé par cohérence avec le username Vikunja)
+  `rudy`, **confirmé** (`https://cal.rudy-ops.fr/rudy` répond 200, compte créé)
+- [x] **Webhook Cal.com → tâche Vikunja avec la date du RDV** (demandé 10/08, fait le 11/08) —
+  route `/calcom-webhook` : vérifie la signature `X-Cal-Signature-256` (HMAC-SHA256), traite
+  `BOOKING_CREATED`, crée la tâche dans le projet "Freelance" avec `due_date` = `startTime`.
+  Secret `CALCOM_WEBHOOK_SECRET` dans OpenBao + Forgejo Actions. **Testé réel** (signature valide
+  simulée, tâche créée avec la bonne date en fuseau local). **Reste à faire côté Cal.com** :
+  configurer le webhook dans Settings → Developer → Webhooks avec l'URL
+  `https://api.rudy-ops.fr/calcom-webhook` et le secret ci-dessus (pas fait — nécessite l'accès
+  admin Cal.com)
+- [ ] **Disponibilités Cal.com à restreindre à 18h-22h** (signalé 11/08) — actuellement configuré
+  avec les horaires par défaut de Cal.com, à ajuster dans Settings → Availability (fait par
+  l'utilisateur, pas depuis cet environnement)
 - [ ] **Sync calendrier Outlook — bloqué** : CalDAV générique incompatible avec Outlook.com/
   Microsoft 365 (abandonné par Microsoft), connecteur "Microsoft Exchange" (EWS) tenté ensuite →
   `401 Unauthorized` (authentification basique désactivée côté Microsoft). Pas bloquant pour les
   réservations clients (Cal.com gère ses dispos tout seul), mais pas de garde-fou contre un
   double-booking avec d'autres rendez-vous hors Cal.com pour l'instant. Reprendre avec soit une
   app OAuth "Office 365 Calendar" (enregistrement Azure AD requis), soit Google Calendar en repli
-- [ ] **Webhook Cal.com → tâche Vikunja avec la date du RDV** (demandé 10/08) —
-  `create_vikunja_task()` accepte déjà un `due_date` optionnel (commit `b1f4e4e`), mais la route
-  `/calcom-webhook` (vérification signature `X-Cal-Signature-256`, parsing `BOOKING_CREATED`,
-  config du webhook côté Cal.com une fois le compte créé) reste à écrire
 
-## Reste ouvert (10/08)
+## Reste ouvert
 
-- [ ] **Email de confirmation stylisé** — `send_email()` n'envoie que du texte brut
-  (`EmailMessage.set_content`) ; passer en HTML avec fallback texte (`multipart/alternative`)
-  pour un rendu plus soigné sur `/contact` et `/quote-chat`
+- [x] **Email de confirmation stylisé** (fait le 11/08) — `send_email()` accepte un `html_body`
+  optionnel (`multipart/alternative`, repli texte brut conservé), template inline-styled cohérent
+  avec la charte (`client_confirmation_html()`), branché sur `/contact` et `/quote-chat`. Champs
+  utilisateur échappés (`html.escape`) avant injection. Testé (email réel envoyé) — **à confirmer
+  visuellement** par Rudy dans sa boîte mail, pas vérifiable depuis cet environnement
 - [x] **Bug corrigé** : `--accent` (utilisée dans `ContactPanel.tsx` et `QuoteChat.tsx`) n'était
   définie nulle part dans `global.css` → bouton "Assistant IA" actif blanc sur fond clair,
   illisible. Remplacée par `--terracotta`, seule couleur d'accent réelle de la palette
