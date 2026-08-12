@@ -28,6 +28,9 @@ Variables d'environnement requises en plus de celles du formulaire :
   destiné à OpenBao comme les autres, passé via -e dans le playbook Ansible,
   cf. pattern documenté dans deploy-vikunja.yml).
 """
+import hashlib
+import hmac
+import html
 import logging
 import os
 import re
@@ -68,6 +71,11 @@ genai_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 # raison de bloquer /contact pour un canal de notif secondaire).
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+# Optionnel également : webhook Cal.com (BOOKING_CREATED -> tâche Vikunja avec la date du
+# rendez-vous). /calcom-webhook répond 503 tant qu'aucun secret n'est configuré, plutôt que de
+# bloquer le démarrage du backend pour une intégration annexe.
+CALCOM_WEBHOOK_SECRET = os.environ.get("CALCOM_WEBHOOK_SECRET")
 
 ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "https://rudy-ops.fr")
 
@@ -125,17 +133,57 @@ def validate(data: dict) -> str | None:
     return validate_fields(data, REQUIRED_FIELDS)
 
 
-def send_email(to: str, subject: str, body: str) -> None:
+def send_email(to: str, subject: str, body: str, html_body: str | None = None) -> None:
     msg = EmailMessage()
     msg["From"] = SMTP_USER
     msg["To"] = to
     msg["Subject"] = subject
     msg.set_content(body)
+    if html_body:
+        msg.add_alternative(html_body, subtype="html")
 
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as smtp:
         smtp.starttls()
         smtp.login(SMTP_USER, SMTP_PASSWORD)
         smtp.send_message(msg)
+
+
+def client_confirmation_html(name: str, subject: str, message: str) -> str:
+    """Email HTML pour la confirmation client — styles inline (compatibilité clients mail),
+    repli texte brut toujours envoyé en parallèle (multipart/alternative, cf. send_email).
+    Champs échappés (html.escape) : injectés dans du HTML, contrairement au texte brut."""
+    name, subject, message = html.escape(name), html.escape(subject), html.escape(message)
+    return f"""\
+<div style="background:#fbfaf7;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;">
+  <table role="presentation" width="100%" style="max-width:520px;margin:0 auto;background:#ffffff;
+      border-radius:16px;overflow:hidden;border:1px solid rgba(28,26,23,0.12);">
+    <tr><td style="background:#a2532c;padding:20px 28px;">
+      <span style="color:#fbfaf7;font-size:20px;font-weight:bold;">rudy-ops.fr</span>
+    </td></tr>
+    <tr><td style="padding:28px;">
+      <p style="color:#1c1a17;font-size:16px;margin:0 0 16px;">Bonjour {name},</p>
+      <p style="color:#1c1a17;font-size:15px;line-height:1.6;margin:0 0 20px;">
+        Merci pour votre message, je reviens vers vous rapidement
+        (généralement sous 48h en semaine, un peu plus le week-end).
+      </p>
+      <table role="presentation" width="100%" style="background:#fbfaf7;border-radius:12px;
+          border:1px solid rgba(28,26,23,0.1);margin:0 0 20px;">
+        <tr><td style="padding:16px 20px;">
+          <p style="color:#8a8478;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;
+              margin:0 0 4px;">Sujet</p>
+          <p style="color:#1c1a17;font-size:15px;margin:0 0 14px;">{subject}</p>
+          <p style="color:#8a8478;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;
+              margin:0 0 4px;">Message</p>
+          <p style="color:#1c1a17;font-size:15px;line-height:1.5;margin:0;white-space:pre-wrap;">{message}</p>
+        </td></tr>
+      </table>
+      <p style="color:#1c1a17;font-size:15px;margin:0;">À bientôt,<br><strong>Rudy</strong></p>
+    </td></tr>
+    <tr><td style="padding:16px 28px;border-top:1px solid rgba(28,26,23,0.1);">
+      <p style="color:#8a8478;font-size:12px;margin:0;">rudy-ops.fr — DevOps &amp; Infrastructure as Code</p>
+    </td></tr>
+  </table>
+</div>"""
 
 
 def notify_telegram(text: str) -> None:
@@ -375,7 +423,12 @@ def contact():
             f"- Message : {data['message']}\n\n"
             "À bientôt,\nRudy"
         )
-        send_email(data["email"], "Votre demande, rudy-ops.fr", client_body)
+        send_email(
+            data["email"],
+            "Votre demande, rudy-ops.fr",
+            client_body,
+            html_body=client_confirmation_html(data["name"], data["subject"], data["message"]),
+        )
 
         notify_body = (
             f"Nouvelle demande depuis rudy-ops.fr\n\n"
@@ -480,7 +533,14 @@ def quote_chat():
             f"{quote_data['summary']}\n\n"
             "À bientôt,\nRudy"
         )
-        send_email(quote_data["email"], "Votre demande, rudy-ops.fr", client_body)
+        send_email(
+            quote_data["email"],
+            "Votre demande, rudy-ops.fr",
+            client_body,
+            html_body=client_confirmation_html(
+                quote_data["name"], quote_data["subject"], quote_data["summary"]
+            ),
+        )
 
         notify_body = (
             f"Nouvelle demande depuis l'assistant IA de rudy-ops.fr\n\n"
@@ -506,6 +566,51 @@ def quote_chat():
             "Je reviens vers vous rapidement par email."
         ),
     })
+
+
+@app.route("/calcom-webhook", methods=["POST"])
+def calcom_webhook():
+    """Reçoit les événements Cal.com (Settings -> Developer -> Webhooks côté Cal.com).
+
+    Ne traite que BOOKING_CREATED : crée une tâche Vikunja avec la date du rendez-vous
+    (due_date = startTime), même projet "Freelance" que le formulaire/chatbot. Les autres
+    triggers (CANCELLED, RESCHEDULED, ...) sont accusés 200 sans action pour l'instant.
+    """
+    if not CALCOM_WEBHOOK_SECRET:
+        logger.error("CALCOM_WEBHOOK_SECRET non configuré — webhook refusé")
+        return jsonify({"ok": False, "error": "webhook non configuré"}), 503
+
+    raw_body = request.get_data()
+    signature = request.headers.get("X-Cal-Signature-256", "")
+    expected = hmac.new(CALCOM_WEBHOOK_SECRET.encode(), raw_body, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(signature, expected):
+        logger.warning("Signature webhook Cal.com invalide")
+        return jsonify({"ok": False, "error": "signature invalide"}), 401
+
+    body = request.get_json(silent=True) or {}
+    if body.get("triggerEvent") != "BOOKING_CREATED":
+        return jsonify({"ok": True}), 200
+
+    payload = body.get("payload", {})
+    attendees = payload.get("attendees") or [{}]
+    attendee = attendees[0]
+
+    data = {
+        "name": attendee.get("name") or "Inconnu",
+        "email": attendee.get("email") or "-",
+        "company": "",
+        "subject": payload.get("title") or "Rendez-vous Cal.com",
+        "message": payload.get("description") or "(pas de description fournie)",
+    }
+
+    try:
+        create_vikunja_task(data, due_date=payload.get("startTime"))
+        notify_telegram(f"Nouveau RDV Cal.com : {data['name']} — {payload.get('startTime', '?')}")
+    except Exception:
+        logger.exception("Échec du traitement du webhook Cal.com")
+        return jsonify({"ok": False, "error": "erreur serveur"}), 500
+
+    return jsonify({"ok": True}), 200
 
 
 @app.route("/health")
