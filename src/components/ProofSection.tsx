@@ -20,6 +20,21 @@ export default function ProofSection() {
       <p className="mx-auto mt-3.5 max-w-[640px] text-[1.05rem] leading-relaxed" style={{ color: "var(--ink-muted)" }}>
         L'essentiel de mes réalisations détaillées vit sur mon portfolio - projets école, personnels et en entreprise.
       </p>
+      <p className="mx-auto mt-2 max-w-[640px] text-[0.95rem] leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+        Du code Terraform/Ansible réel à consulter directement, pas juste des captures d'écran :{" "}
+        <a href="https://github.com/ECG-Rudy-Glt/HOMELAB" target="_blank" rel="noreferrer" className="underline">
+          infrastructure complète open source
+        </a>
+        , {" "}
+        <a href="https://github.com/ECG-Rudy-Glt/shelfmark_ready_to_deploy" target="_blank" rel="noreferrer" className="underline">
+          déploiement applicatif
+        </a>{" "}
+        et{" "}
+        <a href="https://github.com/ECG-Rudy-Glt/jellyfin_local_ready_to_deploy" target="_blank" rel="noreferrer" className="underline">
+          stack media conteneurisée
+        </a>
+        .
+      </p>
     </section>
   );
 }

@@ -1,0 +1,63 @@
+---
+import GlassPanel from "./GlassPanel";
+
+const faq = [
+  {
+    q: "Combien coûte un freelance DevOps à Tours ?",
+    a: "Le tarif dépend du périmètre, mais à titre indicatif : une mission DevOps & Infrastructure as Code (Terraform/Ansible/CI-CD) se situe généralement entre 1200 et 4000 €, une intervention sécurité (audit, durcissement) entre 800 et 2000 €. Le détail complet par service, avec les fourchettes de jours et de budget, est sur la page tarifs.",
+  },
+  {
+    q: "Faut-il être basé à Tours pour travailler avec vous ?",
+    a: "Non. Je suis basé à Tours et disponible sur site dans l'agglomération pour les missions qui le demandent (infrastructure on-premise notamment), mais l'essentiel des prestations (DevOps, sécurité, développement) se fait très bien à distance, partout en France.",
+  },
+  {
+    q: "Quels sont vos délais de disponibilité ?",
+    a: "Les créneaux sont limités aux soirs et week-ends (activité en parallèle d'une alternance) - le détail et un calendrier de réservation en ligne sont sur la page disponibilités. Un premier échange de cadrage de 15 minutes est gratuit et sans engagement.",
+  },
+  {
+    q: "Travaillez-vous uniquement sur Terraform et Ansible, ou aussi sur d'autres providers cloud ?",
+    a: "Terraform/Ansible sur Proxmox et infrastructures on-premise est le cœur de pratique, mais Terraform s'utilise aussi sur AWS/GCP/Azure selon le besoin. Le détail de ce qui est couvert et de ce qui ne l'est pas encore (transparence assumée) est sur la page tarifs.",
+  },
+  {
+    q: "Proposez-vous un accompagnement à la sécurisation d'une infrastructure existante ?",
+    a: "Oui - audit, durcissement système et réseau, gestion centralisée des secrets, et supervision. L'approche est DevSecOps : la sécurité s'intègre dès la conception plutôt que d'être ajoutée après un incident.",
+  },
+];
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
+};
+---
+
+<section class="section" id="faq">
+  <div class="section-tag">Questions fréquentes</div>
+  <h2 class="mt-3 text-[clamp(1.7rem,5vw,2.6rem)] leading-tight">Avant de me contacter</h2>
+
+  <div class="mt-8 space-y-3">
+    {faq.map((item) => (
+      <GlassPanel className="!p-0">
+        <details class="group px-6 py-5 sm:px-8">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-[1.05rem] font-medium" style={{ color: "var(--ink)" }}>
+            {item.q}
+            <svg
+              class="icon h-4 w-4 flex-none transition-transform group-open:rotate-45"
+              viewBox="0 0 24 24"
+              style={{ color: "var(--blue-deep)" }}
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </summary>
+          <p class="mt-3 leading-relaxed" style={{ color: "var(--ink-muted)" }}>{item.a}</p>
+        </details>
+      </GlassPanel>
+    ))}
+  </div>
+</section>
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

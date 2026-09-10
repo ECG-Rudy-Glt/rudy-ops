@@ -14,11 +14,11 @@ export const services = [
     Icon: IconAutomation,
     title: "DevOps & Infrastructure as Code",
     description:
-      "Automatisation de bout en bout : provisioning, CI/CD, supervision. Vos infrastructures deviennent versionnées, testables et reproductibles.",
+      "Freelance DevOps à Tours : automatisation de bout en bout (provisioning, CI/CD, supervision). Vos infrastructures deviennent versionnées, testables et reproductibles.",
     tags: ["Terraform", "Ansible", "CI/CD"],
     href: "/services/devops-iac",
     longDescription:
-      "Toute infrastructure devrait pouvoir être détruite et recréée à l'identique en quelques minutes. Je mets en place des pipelines CI/CD et des configurations Terraform/Ansible versionnées, testées et documentées, pour que votre infrastructure devienne un actif fiable plutôt qu'une boîte noire fragile.",
+      "Toute infrastructure devrait pouvoir être détruite et recréée à l'identique en quelques minutes. Basé à Tours, j'interviens en présentiel dans l'agglomération ou à distance partout en France pour mettre en place des pipelines CI/CD et des configurations Terraform/Ansible versionnées, testées et documentées - votre infrastructure devient un actif fiable plutôt qu'une boîte noire fragile.",
     bullets: [
       "Ecriture et audit de modules Terraform réutilisables",
       "Playbooks Ansible idempotents et documentés",
@@ -31,11 +31,11 @@ export const services = [
     Icon: IconServer,
     title: "Infrastructure on-premise",
     description:
-      "Conception et durcissement d'infrastructures self-hosted : virtualisation, réseau segmenté, sauvegarde et supervision maison.",
+      "Freelance infrastructure on-premise à Tours : virtualisation, réseau segmenté, sauvegarde et supervision maison, conçus et durcis sur site.",
     tags: ["Proxmox", "Reseau", "Sécurité"],
     href: "/services/infra-on-premise",
     longDescription:
-      "Garder la maîtrise totale de vos données et de vos couts recurrents en hebergeant chez vous. Je conçois des infrastructures on-premise robustes : virtualisation, segmentation réseau, sauvegardes chiffrees et supervision, avec la même rigueur qu'une infrastructure cloud.",
+      "Garder la maîtrise totale de vos données et de vos couts recurrents en hebergeant chez vous. Basé à Tours, je me déplace sur site dans l'agglomération pour concevoir des infrastructures on-premise robustes : virtualisation, segmentation réseau, sauvegardes chiffrees et supervision, avec la même rigueur qu'une infrastructure cloud.",
     bullets: [
       "Virtualisation Proxmox et plans de reprise d'activité",
       "Segmentation réseau (VLAN, firewall, PKI interne)",
@@ -116,11 +116,11 @@ export const services = [
     Icon: IconShield,
     title: "Sécurité & DevSecOps",
     description:
-      "Durcissement, gestion des secrets, audits réguliers et supervision : la sécurité intégrée dès la conception (DevSecOps), pas ajoutée après coup.",
+      "Freelance sécurité et DevSecOps à Tours : durcissement, gestion des secrets, audits réguliers - la sécurité intégrée dès la conception, pas ajoutée après coup.",
     tags: ["DevSecOps", "Hardening", "Audit"],
     href: "/services/securite",
     longDescription:
-      "La sécurité se pense dès la conception, pas en dernier recours : c'est l'approche DevSecOps. Je durcis vos systemes, mets en place une gestion rigoureuse des secrets et réalise des audits réguliers pour identifier les points faibles avant qu'ils ne deviennent des incidents.",
+      "La sécurité se pense dès la conception, pas en dernier recours : c'est l'approche DevSecOps. Basé à Tours, disponible sur site dans l'agglomération ou à distance, je durcis vos systemes, mets en place une gestion rigoureuse des secrets et réalise des audits réguliers pour identifier les points faibles avant qu'ils ne deviennent des incidents.",
     bullets: [
       "Hardening système et réseau",
       "Gestion centralisee des secrets (vault, rotation)",
