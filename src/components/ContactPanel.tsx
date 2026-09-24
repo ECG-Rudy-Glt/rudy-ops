@@ -16,6 +16,11 @@ export default function ContactPanel() {
         </TabButton>
       </div>
       {mode === "form" ? <ContactForm /> : <QuoteChat />}
+      <p className="mt-6 text-xs leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+        Vos informations servent uniquement à répondre à votre demande et ne sont ni revendues ni utilisées pour de
+        la prospection. L'assistant IA transmet vos messages à Google (Gemini) pour générer ses réponses.{" "}
+        <a href="/confidentialite" className="underline">En savoir plus et exercer vos droits</a>.
+      </p>
     </div>
   );
 }

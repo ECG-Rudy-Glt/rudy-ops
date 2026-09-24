@@ -1,6 +1,9 @@
 ---
+import "@fontsource-variable/fraunces/opsz.css";
+import "@fontsource-variable/inter";
 import "../styles/global.css";
 import Nav from "../components/Nav";
+import Footer from "../components/Footer";
 
 interface Props {
   title: string;
@@ -61,13 +64,6 @@ const jsonLd = {
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -89,6 +85,7 @@ const jsonLd = {
     <div class="page">
       <Nav client:load />
       <slot />
+      <Footer />
     </div>
   </body>
 </html>

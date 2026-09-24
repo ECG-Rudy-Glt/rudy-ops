@@ -60,12 +60,12 @@
     margin: 0;
     background: var(--bg);
     color: var(--ink);
-    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    font-family: "Inter Variable", "Inter", "Segoe UI", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3 {
-    font-family: "Fraunces", Georgia, "Times New Roman", serif;
+    font-family: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
     font-weight: 600;
     font-optical-sizing: auto;
     letter-spacing: -0.01em;
@@ -222,4 +222,15 @@
   .panel-inner { padding: 28px; }
 }
 
+}
+
+@layer components {
+  .legal h2 { font-size: 1.35rem; margin: 2.2rem 0 0.6rem; }
+  .legal h2:first-child { margin-top: 0; }
+  .legal p, .legal li { color: var(--ink-muted); line-height: 1.7; }
+  .legal p + p { margin-top: 0.7rem; }
+  .legal ul { list-style: disc; padding-left: 1.3rem; margin-top: 0.5rem; }
+  .legal li + li { margin-top: 0.3rem; }
+  .legal strong { color: var(--ink); font-weight: 600; }
+  .legal a { text-decoration: underline; }
 }

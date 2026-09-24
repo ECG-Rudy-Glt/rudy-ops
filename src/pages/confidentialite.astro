@@ -1,0 +1,97 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero";
+import GlassPanel from "../components/GlassPanel";
+import Breadcrumb from "../components/Breadcrumb";
+---
+
+<Layout title="Confidentialité et cookies | rudy-ops.fr" description="Quelles données sont collectées sur rudy-ops.fr, pourquoi, combien de temps, et comment exercer vos droits (RGPD).">
+  <main class="wrap">
+    <Breadcrumb items={[{ label: "Confidentialité" }]} />
+    <PageHero tag="RGPD" title="Confidentialité et cookies" description="Ce que ce site collecte, pourquoi, et comment exercer vos droits." />
+
+    <div class="mx-auto mt-14 max-w-[820px]">
+      <GlassPanel>
+        <div class="legal">
+          <h2>En bref</h2>
+          <p>
+            Pas de publicité, pas de mesure d'audience, pas de cookie de suivi. Les seules données collectées sont
+            celles que vous envoyez volontairement pour une demande de devis ou un rendez-vous.
+          </p>
+
+          <h2>Responsable du traitement</h2>
+          <p>
+            Rudy Gault, entrepreneur individuel (SIRET 999 921 109 00016), Tours.
+            Contact : <a href="mailto:contact@rudy-ops.fr">contact@rudy-ops.fr</a>.
+          </p>
+
+          <h2>Données collectées et finalités</h2>
+          <ul>
+            <li>
+              <strong>Formulaire de devis</strong> : nom, email, entreprise (facultatif), objet et message. Utilisés
+              pour vous répondre et préparer un devis. Base légale : mesures précontractuelles à votre demande.
+            </li>
+            <li>
+              <strong>Assistant de devis (IA)</strong> : le contenu de la conversation, et les coordonnées que vous y
+              donnez. Mêmes finalités et même base légale que le formulaire.
+            </li>
+            <li>
+              <strong>Prise de rendez-vous</strong> : nom, email, créneau choisi et notes éventuelles, pour organiser
+              l'appel.
+            </li>
+            <li>
+              <strong>Journaux techniques</strong> : adresse IP et requêtes, conservés brièvement pour la sécurité et
+              le bon fonctionnement du site. Base légale : intérêt légitime.
+            </li>
+          </ul>
+
+          <h2>Destinataires et sous-traitants</h2>
+          <p>Vos données ne sont ni vendues ni utilisées pour de la prospection. Elles transitent par :</p>
+          <ul>
+            <li><strong>Infrastructure auto-hébergée</strong> (France) : site, traitement des demandes, gestion des tâches (Vikunja) et agenda (Cal.com).</li>
+            <li><strong>OVHcloud</strong> (France) : envoi et réception des emails.</li>
+            <li><strong>Cloudflare</strong> (États-Unis) : acheminement et protection du trafic.</li>
+            <li><strong>Google, API Gemini</strong> (États-Unis) : uniquement si vous utilisez l'assistant IA, pour générer ses réponses. Évitez d'y saisir des informations sensibles ; le formulaire classique n'utilise pas ce service.</li>
+            <li><strong>Telegram</strong> : notification interne indiquant qu'une demande est arrivée.</li>
+          </ul>
+          <p>
+            Les transferts vers les États-Unis reposent sur le Data Privacy Framework UE–États-Unis et les clauses
+            contractuelles types de la Commission européenne.
+          </p>
+
+          <h2>Durée de conservation</h2>
+          <ul>
+            <li>Demande sans suite : 3 ans après le dernier échange, puis suppression.</li>
+            <li>Si la demande aboutit à une mission : durée de la relation, puis 10 ans pour les pièces comptables (obligation légale).</li>
+            <li>Journaux techniques : quelques semaines au plus.</li>
+          </ul>
+
+          <h2>Cookies et stockage local</h2>
+          <p>
+            Ce site ne dépose aucun cookie publicitaire ou de mesure d'audience, c'est pourquoi aucun bandeau de
+            consentement n'est affiché. Seul votre choix de thème clair ou sombre est enregistré dans votre
+            navigateur (stockage local), pour vous éviter de le refaire à chaque page. Cette information ne quitte
+            pas votre appareil. Les polices sont hébergées sur le site lui-même : aucun appel à Google Fonts.
+          </p>
+          <p>
+            Cloudflare peut déposer un cookie technique de sécurité (anti-robots), strictement nécessaire et exempté
+            de consentement.
+          </p>
+
+          <h2>Vos droits</h2>
+          <p>
+            Vous pouvez accéder à vos données, les rectifier, les effacer, en limiter le traitement, vous y opposer
+            ou demander leur portabilité, en écrivant à <a href="mailto:contact@rudy-ops.fr">contact@rudy-ops.fr</a>.
+            Réponse sous un mois au plus.
+          </p>
+          <p>
+            Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la CNIL
+            (<a href="https://www.cnil.fr/fr/plaintes" rel="noopener">cnil.fr/fr/plaintes</a>).
+          </p>
+
+          <p class="mt-8 text-sm">Dernière mise à jour : 24 septembre 2026.</p>
+        </div>
+      </GlassPanel>
+    </div>
+  </main>
+</Layout>

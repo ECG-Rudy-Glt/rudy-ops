@@ -1,0 +1,51 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PageHero from "../components/PageHero";
+import GlassPanel from "../components/GlassPanel";
+import Breadcrumb from "../components/Breadcrumb";
+
+// Adresse du siège de l'entreprise individuelle (obligatoire, art. 6 LCEN).
+const ADDRESS = "Tours (37), France";
+---
+
+<Layout title="Mentions légales | rudy-ops.fr" description="Mentions légales du site rudy-ops.fr, édité par Rudy Gault, entreprise individuelle à Tours.">
+  <main class="wrap">
+    <Breadcrumb items={[{ label: "Mentions légales" }]} />
+    <PageHero tag="Informations" title="Mentions légales" description="Qui édite ce site, et où il est hébergé." />
+
+    <div class="mx-auto mt-14 max-w-[820px]">
+      <GlassPanel>
+        <div class="legal">
+          <h2>Éditeur</h2>
+          <p>
+            <strong>Rudy Gault</strong>, entrepreneur individuel<br />
+            SIRET : 999 921 109 00016 (SIREN 999 921 109)<br />
+            Siège : {ADDRESS}<br />
+            Contact : <a href="mailto:contact@rudy-ops.fr">contact@rudy-ops.fr</a>
+          </p>
+          <p>Directeur de la publication : Rudy Gault.</p>
+
+          <h2>Hébergement</h2>
+          <p>
+            Le site est auto-hébergé par l'éditeur, sur une infrastructure située en France. Le trafic passe par
+            <strong>Cloudflare, Inc.</strong> (101 Townsend St, San Francisco, CA 94107, États-Unis), qui assure
+            l'acheminement et la protection du site.
+          </p>
+
+          <h2>Propriété intellectuelle</h2>
+          <p>
+            Les textes, visuels et éléments graphiques de ce site sont la propriété de Rudy Gault, sauf mention
+            contraire. Toute reproduction sans autorisation est interdite. Les polices Fraunces et Inter sont
+            distribuées sous licence SIL Open Font License.
+          </p>
+
+          <h2>Données personnelles</h2>
+          <p>
+            Le traitement des données transmises via ce site est décrit dans la
+            <a href="/confidentialite">politique de confidentialité</a>.
+          </p>
+        </div>
+      </GlassPanel>
+    </div>
+  </main>
+</Layout>

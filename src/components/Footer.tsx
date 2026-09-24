@@ -43,6 +43,10 @@ export default function Footer() {
         >
           <span>© 2026 Rudy Gault</span>
           <span>Entreprise individuelle · Tours · SIRET 999 921 109 00016</span>
+          <span className="flex gap-4">
+            <a href="/mentions-legales" className="no-underline hover:underline" style={{ color: "inherit" }}>Mentions légales</a>
+            <a href="/confidentialite" className="no-underline hover:underline" style={{ color: "inherit" }}>Confidentialité</a>
+          </span>
         </div>
       </div>
     </footer>
