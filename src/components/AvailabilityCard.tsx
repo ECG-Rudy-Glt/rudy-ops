@@ -2,8 +2,8 @@ export default function AvailabilityCard() {
   return (
     <a
       href="/disponibilites"
-      className="group mx-auto mt-16 flex max-w-[720px] flex-col gap-3 border-l-2 py-1 pl-5 text-left no-underline sm:flex-row sm:items-center sm:justify-between"
-      style={{ color: "inherit", borderColor: "var(--terracotta)" }}
+      className="group mx-auto mt-16 flex max-w-[720px] flex-col gap-3 rounded-2xl border border-l-4 px-6 py-5 text-left no-underline transition-colors sm:flex-row sm:items-center sm:justify-between"
+      style={{ color: "inherit", background: "var(--card)", borderColor: "var(--card-border)", borderLeftColor: "var(--terracotta)" }}
     >
       <div>
         <div className="font-semibold">Disponible en soirée et le week-end</div>
