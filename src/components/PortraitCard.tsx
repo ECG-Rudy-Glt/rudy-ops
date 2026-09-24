@@ -1,7 +1,7 @@
 export default function PortraitCard() {
   return (
     <div
-      className="relative aspect-[4/5] w-full overflow-hidden rounded-[28px] border"
+      className="flex aspect-[4/5] w-full flex-col overflow-hidden rounded-[28px] border"
       style={{
         borderColor: "var(--card-border)",
         background:
@@ -12,9 +12,9 @@ export default function PortraitCard() {
       <img
         src="/images/avatar.png"
         alt="Rudy Gault"
-        className="absolute inset-0 h-full w-full object-contain p-8"
+        className="min-h-0 w-full flex-1 object-contain p-8 pb-4"
       />
-      <div className="absolute inset-x-0 bottom-0 p-6">
+      <div className="border-t px-6 py-4" style={{ borderColor: "var(--card-border)", background: "var(--card)" }}>
         <div
           className="text-[1.15rem] font-semibold"
           style={{ color: "var(--ink)" }}
