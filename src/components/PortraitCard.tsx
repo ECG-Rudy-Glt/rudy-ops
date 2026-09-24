@@ -17,7 +17,7 @@ export default function PortraitCard() {
       <div className="absolute inset-x-0 bottom-0 p-6">
         <div
           className="text-[1.15rem] font-semibold"
-          style={{ fontFamily: "Fraunces, Georgia, serif", color: "var(--ink)" }}
+          style={{ color: "var(--ink)" }}
         >
           Rudy Gault
         </div>
