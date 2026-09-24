@@ -11,7 +11,7 @@ export default function ProofSection() {
           <svg
             className="icon ml-3 inline-block h-[0.75em] w-[0.75em] flex-none align-middle transition-transform group-hover:translate-x-1"
             viewBox="0 0 24 24"
-            style={{ color: "var(--blue-deep)" }}
+            style={{ color: "var(--terracotta)" }}
           >
             <path d="M7 17 17 7M8 7h9v9" />
           </svg>

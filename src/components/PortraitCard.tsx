@@ -5,7 +5,7 @@ export default function PortraitCard() {
       style={{
         borderColor: "var(--card-border)",
         background:
-          "radial-gradient(120% 100% at 20% 0%, color-mix(in srgb, var(--blue) 30%, var(--bg)) 0%, var(--bg) 55%), radial-gradient(120% 120% at 100% 100%, color-mix(in srgb, var(--terracotta) 22%, transparent) 0%, transparent 60%)",
+          "color-mix(in srgb, var(--terracotta) 8%, var(--bg))",
         boxShadow: "0 24px 54px rgba(var(--shadow-rgb), .1)",
       }}
     >

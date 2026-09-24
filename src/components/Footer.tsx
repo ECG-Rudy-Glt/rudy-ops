@@ -10,15 +10,13 @@ export default function Footer() {
     <footer className="mt-5 pb-12">
       <div className="wrap">
         <div
-          className="relative rounded-[30px] p-0.5"
-          style={{ background: "linear-gradient(150deg, var(--rim), transparent 40%, transparent 60%, var(--rim))" }}
+          className="relative rounded-[30px] p-px"
+          style={{ background: "var(--card-border)" }}
         >
           <div
             className="rounded-[28px] px-8 py-10 sm:px-11"
             style={{
               background: "var(--card)",
-              backdropFilter: "blur(30px) saturate(170%)",
-              WebkitBackdropFilter: "blur(30px) saturate(170%)",
               boxShadow: "0 24px 54px rgba(var(--shadow-rgb), .07)",
             }}
           >
@@ -44,7 +42,7 @@ export default function Footer() {
           style={{ color: "var(--ink-muted)" }}
         >
           <span>© 2026 Rudy Gault</span>
-          <span>SIRET à venir - mentions légales</span>
+          <span>Entreprise individuelle · Tours · SIRET 999 921 109 00016</span>
         </div>
       </div>
     </footer>

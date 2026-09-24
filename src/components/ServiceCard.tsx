@@ -12,23 +12,23 @@ export default function ServiceCard({ Icon, title, description, tags, href }: Se
   return (
     <a
       href={href}
-      className="group relative block cursor-pointer rounded-[26px] p-0.5 no-underline transition-transform duration-300 ease-out hover:-translate-y-1"
+      className="group relative block cursor-pointer rounded-[26px] p-px no-underline transition-transform duration-300 ease-out hover:-translate-y-1"
       style={{
-        background: "linear-gradient(155deg, var(--rim), transparent 38%, transparent 62%, var(--rim))",
+        background: "var(--card-border)",
         boxShadow: "0 18px 40px rgba(var(--shadow-rgb), .06)",
       }}
     >
       <div
         className="h-full rounded-[24px] p-6 transition-colors duration-300 sm:p-8"
-        style={{ background: "var(--card)", backdropFilter: "blur(30px) saturate(170%)", WebkitBackdropFilter: "blur(30px) saturate(170%)" }}
+        style={{ background: "var(--card)" }}
       >
         <div className="flex items-start justify-between">
           <div
             className="mb-5 flex h-11 w-11 items-center justify-center rounded-[13px] border"
             style={{
-              background: "color-mix(in srgb, var(--blue) 18%, transparent)",
-              borderColor: "color-mix(in srgb, var(--blue) 38%, transparent)",
-              color: "var(--blue-deep)",
+              background: "color-mix(in srgb, var(--terracotta) 18%, transparent)",
+              borderColor: "color-mix(in srgb, var(--terracotta) 38%, transparent)",
+              color: "var(--terracotta)",
             }}
           >
             <Icon />

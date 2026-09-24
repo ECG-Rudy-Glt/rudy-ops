@@ -28,7 +28,7 @@ const { service } = Astro.props;
         <div class="flex items-start gap-4">
           <span
             class="flex h-14 w-14 flex-none items-center justify-center rounded-2xl border"
-            style={{ background: "color-mix(in srgb, var(--blue) 18%, transparent)", borderColor: "color-mix(in srgb, var(--blue) 38%, transparent)", color: "var(--blue-deep)" }}
+            style={{ background: "color-mix(in srgb, var(--terracotta) 18%, transparent)", borderColor: "color-mix(in srgb, var(--terracotta) 38%, transparent)", color: "var(--terracotta)" }}
           >
             <service.Icon />
           </span>
@@ -45,7 +45,7 @@ const { service } = Astro.props;
         <ul class="mt-8 grid grid-cols-1 gap-3 border-t pt-8 sm:grid-cols-2" style={{ borderColor: "var(--card-border)" }}>
           {service.bullets.map((bullet: string) => (
             <li class="flex items-start gap-2.5 text-[0.95rem]" style={{ color: "var(--ink)" }}>
-              <svg class="icon mt-0.5 h-4 w-4 flex-none" viewBox="0 0 24 24" style={{ color: "var(--blue-deep)" }}>
+              <svg class="icon mt-0.5 h-4 w-4 flex-none" viewBox="0 0 24 24" style={{ color: "var(--terracotta)" }}>
                 <path d="M20 6 9 17l-5-5" />
               </svg>
               {bullet}

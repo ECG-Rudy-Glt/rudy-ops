@@ -10,9 +10,24 @@ const links = [
   { href: "https://portfolio.gault-rudy.com", label: "Portfolio" },
 ];
 
+function isActive(href: string, path: string, hash: string) {
+  if (href.startsWith("http")) return false;
+  if (href === "/#services") return path.startsWith("/services") || (path === "/" && hash === "#services");
+  if (href === "/") return path === "/" && hash !== "#services";
+  return path === href || path.startsWith(href + "/");
+}
+
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loc, setLoc] = useState({ path: "", hash: "" });
+
+  useEffect(() => {
+    const update = () => setLoc({ path: window.location.pathname.replace(/\/$/, "") || "/", hash: window.location.hash });
+    update();
+    window.addEventListener("hashchange", update);
+    return () => window.removeEventListener("hashchange", update);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -35,12 +50,10 @@ export default function Nav() {
           style={{
             background: "var(--nav-bg)",
             borderColor: "var(--card-border)",
-            backdropFilter: "blur(26px) saturate(180%)",
-            WebkitBackdropFilter: "blur(26px) saturate(180%)",
             padding: scrolled ? "7px 6px" : "9px 8px",
             boxShadow: scrolled
-              ? "0 14px 32px rgba(var(--shadow-rgb), .16), inset 0 1.5px 0 var(--rim)"
-              : "0 8px 24px rgba(var(--shadow-rgb), .08), inset 0 1.5px 0 var(--rim)",
+              ? "0 14px 32px rgba(var(--shadow-rgb), .16)"
+              : "0 8px 24px rgba(var(--shadow-rgb), .08)",
             transform: scrolled ? "scale(0.99)" : "scale(1)",
           }}
         >
@@ -56,12 +69,20 @@ export default function Nav() {
             </svg>
           </button>
 
-          <div className="hidden flex-1 items-center justify-center gap-8 px-4 text-sm sm:flex" style={{ color: "var(--ink-muted)" }}>
-            {links.map((l) => (
-              <a key={l.href} href={l.href} className="whitespace-nowrap transition-colors hover:opacity-100" style={{ color: "inherit" }}>
-                {l.label}
-              </a>
-            ))}
+          <div className="hidden flex-1 items-center justify-center gap-1 px-2 text-sm sm:flex">
+            {links.map((l) => {
+              const active = isActive(l.href, loc.path, loc.hash);
+              return (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`nav-link whitespace-nowrap rounded-full px-3 py-1.5 no-underline${active ? " is-active" : ""}`}
+                >
+                  {l.label}
+                </a>
+              );
+            })}
           </div>
 
           <div className="flex flex-1 items-center justify-end gap-2.5 sm:flex-none sm:gap-3.5">
@@ -82,8 +103,6 @@ export default function Nav() {
             style={{
               background: "var(--nav-bg)",
               borderColor: "var(--card-border)",
-              backdropFilter: "blur(26px) saturate(180%)",
-              WebkitBackdropFilter: "blur(26px) saturate(180%)",
               boxShadow: "0 14px 32px rgba(var(--shadow-rgb), .16)",
             }}
           >
@@ -92,8 +111,8 @@ export default function Nav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setMenuOpen(false)}
-                className="block rounded-2xl px-4 py-3 text-[0.95rem] no-underline"
-                style={{ color: "var(--ink)" }}
+                aria-current={isActive(l.href, loc.path, loc.hash) ? "page" : undefined}
+                className={`nav-link block rounded-2xl px-4 py-3 text-[0.95rem] no-underline${isActive(l.href, loc.path, loc.hash) ? " is-active" : ""}`}
               >
                 {l.label}
               </a>

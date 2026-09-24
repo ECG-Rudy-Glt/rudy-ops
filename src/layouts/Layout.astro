@@ -1,7 +1,6 @@
 ---
 import "../styles/global.css";
 import Nav from "../components/Nav";
-import AnimatedBackground from "../components/AnimatedBackground";
 
 interface Props {
   title: string;
@@ -22,6 +21,7 @@ const jsonLd = {
   description:
     "Freelance DevOps, Platform Engineer et DevSecOps basé à Tours : Infrastructure as Code, infrastructure on-premise, sites web statiques et dynamiques, IA dans les workflows, sécurité.",
   url: "https://rudy-ops.fr",
+  taxID: "99992110900016",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Tours",
@@ -78,13 +78,8 @@ const jsonLd = {
     <meta name="twitter:image" content={ogImageUrl} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-    <script is:inline>
-      const stored = localStorage.getItem("theme");
-      if (stored) document.documentElement.setAttribute("data-theme", stored);
-    </script>
   </head>
   <body>
-    <AnimatedBackground client:load />
     <div class="page">
       <Nav client:load />
       <slot />
