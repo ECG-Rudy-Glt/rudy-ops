@@ -78,6 +78,12 @@ const jsonLd = {
     <meta name="twitter:image" content={ogImageUrl} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
+    <script is:inline>
+      try {
+        const t = sessionStorage.getItem("theme");
+        if (t) document.documentElement.setAttribute("data-theme", t);
+      } catch {}
+    </script>
   </head>
   <body>
     <div class="page">
